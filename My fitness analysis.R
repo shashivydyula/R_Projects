@@ -1,40 +1,3 @@
-install.packages('tidyverse')
-install.packages('data.table')
-install.packages('ggplot2') 
-install.packages('viridis')
-install.packages('scales')
-install.packages('waffle')
-install.packages('ggrepel')
-install.packages('plotly')
-install.packages('RColorBrewer')
-install.packages('datasauRus')
-install.packages('dplyr') 
-install.packages('readr') 
-install.packages('skimr') 
-install.packages('tibble') 
-install.packages('tidyr') 
-install.packages('purrr')
-install.packages('stringr') 
-install.packages('forcats')
-install.packages('janitor') 
-install.packages('Tmisc') 
-install.packages('class')
-install.packages('lubridate') 
-install.packages('forecast') 
-install.packages('timetk')
-install.packages('here')
-install.packages('gganimate')
-install.packages('XML')
-install.packages('gganimate')
-install.packages('ggpubr')
-install.packages('gifski')
-install.packages('gapminder')
-install.packages('timetk')
-
-
-
-
-
 library('tidyverse')
 library('data.table')
 library('ggplot2') 
@@ -192,7 +155,6 @@ head(max_heart_rate_cleaned)
 
 max_heart_rate_cleaned$date <- as.Date(max_heart_rate_cleaned$date,"%Y-%m-%d")
 
-install.packages("transformr")
 library('transformr')
 
 p1 <- ggplot(max_heart_rate_cleaned,aes(x=date, y=max_heart_rate, group=1)) + 
@@ -206,3 +168,21 @@ p1 <- p1+scale_x_date(date_labels = "%b/%Y")
 p1+transition_reveal(date)
 
 p1
+
+# Max Heart rate vs Min Heart rate
+heart_rate<-my_activity_cleaned %>% select(date, max_heart_rate_bpm, min_heart_rate_bpm, step_count) %>% 
+  group_by(step_count)
+
+tibble(heart_rate)
+
+heart_rate_cleaned<-na.omit(heart_rate)
+
+
+tibble(heart_rate_cleaned)
+
+ggplot(heart_rate_cleaned) + 
+  geom_line(mapping=aes(x=step_count, y=max_heart_rate_bpm, group=1), color="orange") +   
+  labs(x="Number of steps", y="Max & Min Heart Rate", title= "<span style = 'color: #FF7400'> Maximum Heart Rate </span>") +
+  theme(plot.title=element_markdown()) +
+  geom_line(mapping=aes(x=step_count, y=min_heart_rate_bpm, group=1), color="red") + labs(subtitle= "<span style = 'color: #FF0000'> Minimum Heart Rate </span>") +
+  theme(plot.subtitle=element_markdown())
