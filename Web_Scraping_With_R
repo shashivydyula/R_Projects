@@ -1,0 +1,139 @@
+#This is Web Scraping of IMDB Movies for category Thriller movies. Each category more or less the same code with respective URL to scrape. If you are replicating this code for different categories, make sure you change the URL.
+
+library('rvest')
+library('dplyr')
+
+#Step 1: Create function to navigate between available pages
+html_more_elements <- function(session, css, more_css) {
+  xml2:::xml_nodeset(c(
+    html_elements(session, css),
+    tryCatch({
+      html_more_elements(session_follow_link(session, css = more_css),
+                         css, more_css)
+    }, error = function(e) NULL)
+  ))
+}
+
+#step 2 The URL: https://www.imdb.com/search/title/?genres=sport&sort=user_rating,desc&title_type=feature&num_votes=25000,&pf_rd_m=A2FGELUUNOQJNL&pf_rd_p=f11158cc-b50b-4c4d-b0a2-40b32863395b&pf_rd_r=Z7QXZ3M9TFQZ7AAQR1RN&pf_rd_s=right-6&pf_rd_t=15506&pf_rd_i=top&ref_=chttp_gnr_19
+
+
+# Step 3: Let the function run between various elements we want to scrape
+
+title<-
+  session("https://www.imdb.com/search/title/?genres=thriller&sort=user_rating,desc&title_type=feature&num_votes=25000,&pf_rd_m=A2FGELUUNOQJNL&pf_rd_p=f11158cc-b50b-4c4d-b0a2-40b32863395b&pf_rd_r=Z7QXZ3M9TFQZ7AAQR1RN&pf_rd_s=right-6&pf_rd_t=15506&pf_rd_i=top&ref_=chttp_gnr_19") %>% 
+  html_more_elements(".lister-item-header a", ".next-page") %>% 
+  html_text()
+
+year <-
+  session("https://www.imdb.com/search/title/?genres=thriller&sort=user_rating,desc&title_type=feature&num_votes=25000,&pf_rd_m=A2FGELUUNOQJNL&pf_rd_p=f11158cc-b50b-4c4d-b0a2-40b32863395b&pf_rd_r=Z7QXZ3M9TFQZ7AAQR1RN&pf_rd_s=right-6&pf_rd_t=15506&pf_rd_i=top&ref_=chttp_gnr_19") %>% 
+  html_more_elements(".text-muted.unbold", ".next-page") %>% 
+  html_text()
+
+certificate <-
+  session ("https://www.imdb.com/search/title/?genres=thriller&sort=user_rating,desc&title_type=feature&num_votes=25000,&pf_rd_m=A2FGELUUNOQJNL&pf_rd_p=f11158cc-b50b-4c4d-b0a2-40b32863395b&pf_rd_r=Z7QXZ3M9TFQZ7AAQR1RN&pf_rd_s=right-6&pf_rd_t=15506&pf_rd_i=top&ref_=chttp_gnr_19") %>% 
+  html_more_elements(".certificate", ".next-page") %>% 
+  html_text()
+
+runtime <- 
+  session("https://www.imdb.com/search/title/?genres=thriller&sort=user_rating,desc&title_type=feature&num_votes=25000,&pf_rd_m=A2FGELUUNOQJNL&pf_rd_p=f11158cc-b50b-4c4d-b0a2-40b32863395b&pf_rd_r=Z7QXZ3M9TFQZ7AAQR1RN&pf_rd_s=right-6&pf_rd_t=15506&pf_rd_i=top&ref_=chttp_gnr_19") %>% 
+  html_more_elements(".runtime", ".next-page") %>% 
+  html_text()
+
+
+genre<-
+  session("https://www.imdb.com/search/title/?genres=thriller&sort=user_rating,desc&title_type=feature&num_votes=25000,&pf_rd_m=A2FGELUUNOQJNL&pf_rd_p=f11158cc-b50b-4c4d-b0a2-40b32863395b&pf_rd_r=Z7QXZ3M9TFQZ7AAQR1RN&pf_rd_s=right-6&pf_rd_t=15506&pf_rd_i=top&ref_=chttp_gnr_19") %>% 
+  html_more_elements(".genre",".next-page") %>% 
+  html_text()
+
+rating<-
+  session("https://www.imdb.com/search/title/?genres=thriller&sort=user_rating,desc&title_type=feature&num_votes=25000,&pf_rd_m=A2FGELUUNOQJNL&pf_rd_p=f11158cc-b50b-4c4d-b0a2-40b32863395b&pf_rd_r=Z7QXZ3M9TFQZ7AAQR1RN&pf_rd_s=right-6&pf_rd_t=15506&pf_rd_i=top&ref_=chttp_gnr_19") %>% 
+  html_more_elements(".ratings-imdb-rating strong", ".next-page") %>% 
+  html_text()
+
+
+metascore<-
+  session("https://www.imdb.com/search/title/?genres=thriller&sort=user_rating,desc&title_type=feature&num_votes=25000,&pf_rd_m=A2FGELUUNOQJNL&pf_rd_p=f11158cc-b50b-4c4d-b0a2-40b32863395b&pf_rd_r=Z7QXZ3M9TFQZ7AAQR1RN&pf_rd_s=right-6&pf_rd_t=15506&pf_rd_i=top&ref_=chttp_gnr_19") %>% 
+  html_more_elements(".ratings-metascore", ".next-page") %>% 
+  html_text()
+
+
+synopsis<-
+  session("https://www.imdb.com/search/title/?genres=thriller&sort=user_rating,desc&title_type=feature&num_votes=25000,&pf_rd_m=A2FGELUUNOQJNL&pf_rd_p=f11158cc-b50b-4c4d-b0a2-40b32863395b&pf_rd_r=Z7QXZ3M9TFQZ7AAQR1RN&pf_rd_s=right-6&pf_rd_t=15506&pf_rd_i=top&ref_=chttp_gnr_19") %>%
+  html_more_elements(".ratings-bar+ .text-muted", ".next-page") %>% 
+  html_text()
+
+
+director<-
+  session("https://www.imdb.com/search/title/?genres=thriller&sort=user_rating,desc&title_type=feature&num_votes=25000,&pf_rd_m=A2FGELUUNOQJNL&pf_rd_p=f11158cc-b50b-4c4d-b0a2-40b32863395b&pf_rd_r=Z7QXZ3M9TFQZ7AAQR1RN&pf_rd_s=right-6&pf_rd_t=15506&pf_rd_i=top&ref_=chttp_gnr_19") %>% 
+  html_more_elements(".text-muted+ p a:nth-child(1)", ".next-page") %>% 
+  html_text()
+
+
+votes<-
+  session("https://www.imdb.com/search/title/?genres=thriller&sort=user_rating,desc&title_type=feature&num_votes=25000,&pf_rd_m=A2FGELUUNOQJNL&pf_rd_p=f11158cc-b50b-4c4d-b0a2-40b32863395b&pf_rd_r=Z7QXZ3M9TFQZ7AAQR1RN&pf_rd_s=right-6&pf_rd_t=15506&pf_rd_i=top&ref_=chttp_gnr_19") %>% 
+  html_more_elements(".sort-num_votes-visible span:nth-child(2)", ".next-page") %>% 
+  html_text()
+
+
+gross<-
+  session("https://www.imdb.com/search/title/?genres=thriller&sort=user_rating,desc&title_type=feature&num_votes=25000,&pf_rd_m=A2FGELUUNOQJNL&pf_rd_p=f11158cc-b50b-4c4d-b0a2-40b32863395b&pf_rd_r=Z7QXZ3M9TFQZ7AAQR1RN&pf_rd_s=right-6&pf_rd_t=15506&pf_rd_i=top&ref_=chttp_gnr_19") %>% 
+  html_more_elements(".ghost~ .text-muted+ span", ".next-page") %>% 
+  html_text()
+
+cast1<-
+  session("https://www.imdb.com/search/title/?genres=thriller&sort=user_rating,desc&title_type=feature&num_votes=25000,&pf_rd_m=A2FGELUUNOQJNL&pf_rd_p=f11158cc-b50b-4c4d-b0a2-40b32863395b&pf_rd_r=Z7QXZ3M9TFQZ7AAQR1RN&pf_rd_s=right-6&pf_rd_t=15506&pf_rd_i=top&ref_=chttp_gnr_19") %>% 
+  html_more_elements('a[href*="adv_li_st_0"]', ".next-page") %>% 
+  html_text()
+
+
+cast2<-
+  session("https://www.imdb.com/search/title/?genres=thriller&sort=user_rating,desc&title_type=feature&num_votes=25000,&pf_rd_m=A2FGELUUNOQJNL&pf_rd_p=f11158cc-b50b-4c4d-b0a2-40b32863395b&pf_rd_r=Z7QXZ3M9TFQZ7AAQR1RN&pf_rd_s=right-6&pf_rd_t=15506&pf_rd_i=top&ref_=chttp_gnr_19") %>% 
+  html_more_elements('a[href*="adv_li_st_1"]', ".next-page") %>% 
+  html_text()
+
+cast3<-
+  session("https://www.imdb.com/search/title/?genres=thriller&sort=user_rating,desc&title_type=feature&num_votes=25000,&pf_rd_m=A2FGELUUNOQJNL&pf_rd_p=f11158cc-b50b-4c4d-b0a2-40b32863395b&pf_rd_r=Z7QXZ3M9TFQZ7AAQR1RN&pf_rd_s=right-6&pf_rd_t=15506&pf_rd_i=top&ref_=chttp_gnr_19") %>% 
+  html_more_elements('a[href*="adv_li_st_2"]', ".next-page") %>% 
+  html_text()
+
+cast4<-
+  session("https://www.imdb.com/search/title/?genres=thriller&sort=user_rating,desc&title_type=feature&num_votes=25000,&pf_rd_m=A2FGELUUNOQJNL&pf_rd_p=f11158cc-b50b-4c4d-b0a2-40b32863395b&pf_rd_r=Z7QXZ3M9TFQZ7AAQR1RN&pf_rd_s=right-6&pf_rd_t=15506&pf_rd_i=top&ref_=chttp_gnr_19") %>% 
+  html_more_elements('a[href*="adv_li_st_3"]', ".next-page") %>% 
+  html_text()
+
+#Step 4: Make lengths of all columns equal
+length(title)<-length(title)
+length(year)<-length(title)
+length(certificate)<-length(title)
+length(runtime)<-length(title)
+length(genre)<-length(title)
+length(rating)<-length(title)
+length(metascore)<-length(title)
+length(synopsis)<-length(title)
+length(director)<-length(title)
+length(votes)<-length(title)
+length(gross)<-length(title)
+length(cast1)<-length(title)
+length(cast2)<-length(title)
+length(cast3)<-length(title)
+length(cast4)<-length(title)
+
+
+# Step 5: Cleaning of certain columns and creating data frame
+year<-gsub("[()]", "", year) # remove parentheses from year
+metascore<-str_squish(metascore) # remove additional spaces
+metascore <- gsub('Metascore','',metascore) # remove the word metascore
+genre <- sapply(genre, function(x) { gsub("[\r\n]", "", x) })
+synopsis <- sapply(synopsis, function(x) { gsub("[\r\n]", "", x) })
+
+
+#Step 6: Create a data frame that will now have all columns length equal and will replace missing values with NA
+thriller_movies<-data.frame(title=title, year=year, certificate=certificate, runtime=runtime,
+                         genre=genre, rating=rating, 
+                         metascore=metascore, synopsis=synopsis, director=director, 
+                         votes=votes, gross=gross, 
+                         cast1=cast1, cast2=cast2, cast3=cast3, cast4=cast4)
+
+
+# Step 7: write CSV
+fwrite(thriller_movies, "thriller_movies.csv")
