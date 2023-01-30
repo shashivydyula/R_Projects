@@ -1,0 +1,285 @@
+---
+title: "Heart Disease Analysis"
+author: "Dr. Shashikanth Vydyula"
+date: '`r Sys.Date()`'
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    number_sections: false
+    highlight: pygments
+    code_folding: hide
+---
+
+<style type="text/css">
+
+h1.title {
+  font-size: 38px;
+  color: DarkRed;
+  text-align: center;
+}
+h4.author { /* Header 4 - and the author and data headers use this too  */
+    font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkRed;
+  text-align: center;
+}
+h4.date { /* Header 4 - and the author and data headers use this too  */
+  font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+  text-align: center;
+}
+</style>
+
+
+***
+
+```{r steup, include=FALSE}
+knitr::opts_chunk$set(
+  comment = NA,
+  warning= FALSE,
+  message = FALSE
+)
+```
+
+# Load Packages
+```{r}
+library('tidyverse') # essential R packages for data science
+library('data.table')
+
+library('ggplot2') # visualization
+library("ggtext")
+library("highcharter")
+
+library('dplyr') # data manipulation
+library('readr') # input/output
+library('skimr') # overview
+library('tibble') # data wrangling
+library('tidyr') # data wrangling
+library('purrr') # data wrangling
+library('stringr') # string manipulation
+library('forcats') # factor manipulation
+library('janitor') # data cleaning
+```
+
+# Import Data
+```{r}
+data<-read.csv("C:/Shashi/Data & Dashboards/Datasets/heart.csv")
+
+summary(data)
+str(data)
+```
+
+***
+
+
+> **Before manipulating the data, let us document the values in the data and what they mean while we manipulate along.**
+
+```{r}
+#1. CP or Chest Pain
+#**cp (Chest Pain) : Chest Pain type chest pain type**
+#**Value 0: typical angina**
+#**Value 1: atypical angina**
+#**Value 2: non-anginal **
+#**Value 3: asymptomatic**
+
+data2<-data %>% mutate(cp = case_when(cp == 0 ~ 'TYPICAL ANGINA',
+                                        cp == 1 ~ 'ATYPICAL ANGINA',
+                                        cp ==2  ~ 'NON ANGINAL',
+                                        cp ==3 ~ 'ASYMPTOMATIC')) %>% 
+#Sex (1=Male, 0=Female)
+ mutate(sex=case_when(sex == 0 ~ "Female",
+                                     sex == 1 ~ "Male")) %>% 
+
+#fbs : (fasting blood sugar > 120 mg/dl) (1 = true; 0 = false)
+  mutate(fbs=case_when(fbs == 0 ~ "<120 mg/dl",
+                                     fbs ==1 ~ ">120 mg/dl")) %>% 
+
+
+#rest_ecg : resting electrocardiographic results
+#**Value 0: normal**
+#**Value 1: having ST-T wave abnormality (T wave inversions and/or ST elevation or depression of > 0.05 mV)**
+#**Value 2: showing probable or definite left ventricular hypertrophy by Estes' criteria**
+
+mutate(restecg=case_when(restecg==0 ~ "Normal",restecg==1 ~ "ST-T Wave Abnormality", restecg==2 ~ "Probable or Definite Left Ventricular Hypertrophy")) %>% 
+
+
+#exang: exercise induced angina (1 = yes; 0 = no)
+ mutate(exng=case_when(exng==0 ~ "No",
+                                      exng==1 ~ "Yes")) %>% 
+
+#output 1=Heart Disease, 0=Normal
+ mutate(output=case_when(output==0 ~ "Normal",
+                                        output==1 ~ "Heart Disease"))
+```
+
+***
+
+
+# Presence of heart Disease
+```{r}
+heart_Disease<-data2 %>% 
+  group_by(output) %>% 
+  summarise(count=n()) %>% 
+  mutate(perc=paste0(round(count / sum(count) * 100, 1), "%")) 
+  
+view(heart_Disease)
+
+highchart() %>% 
+  hc_chart(type ="column",
+           options3d = list(enabled = TRUE, alpha = 15, beta = 15)) %>%
+  hc_xAxis(categories = heart_Disease$output) %>% 
+  hc_add_series(data = heart_Disease$count, name = "Heart Disease/Normal Count") %>%
+  hc_add_theme(hc_theme_economist()) %>%
+  hc_title(text="Heart Disease Incidence")
+```
+
+***
+
+# Blood sugar
+```{r}
+fbs<-data2 %>% 
+  group_by(fbs) %>% 
+  summarise(count=n()) %>% 
+  mutate(fbs_perc=paste0(round(count/sum(count)*100, 2),"%"))
+
+view(fbs)
+
+highchart() %>% 
+  hc_chart(type ="column",
+           options3d = list(enabled = TRUE, alpha = 15, beta = 15)) %>%
+  hc_xAxis(categories = fbs$fbs) %>% 
+  hc_add_series(data = fbs$count, name = "Bloog Sugar Levels - Fasting") %>%
+  hc_add_theme(hc_theme_monokai()) %>%
+  hc_title(text="Fasting Blood Sugar")
+```
+
+***
+
+# Rest ECG
+```{r}
+rest_ecg<-data2 %>% 
+  group_by(restecg) %>% 
+  summarise(count=n()) %>% 
+  mutate(ecg_perc=paste0(round(count/sum(count)*100, 2), "%"))
+
+view(rest_ecg)
+
+highchart() %>% 
+  hc_chart(type ="column",
+           options3d = list(enabled = TRUE, alpha = 15, beta = 15)) %>%
+  hc_xAxis(categories = rest_ecg$restecg) %>% 
+  hc_add_series(data = rest_ecg$count, name = "Resting ECG") %>%
+  hc_add_theme(hc_theme_bloom()) %>%
+  hc_title(text="ECG")
+```
+
+***
+
+# Chest pain
+```{r}
+chest_pain<-data2 %>% 
+  group_by(cp) %>% 
+  summarise(count=n()) %>% 
+  mutate(cp_perc=paste0(round(count / sum(count) * 100, 1), "%"))
+
+
+highchart() %>% 
+  hc_chart(type ="bar",
+           options3d = list(enabled = TRUE, alpha = 15, beta = 15)) %>%
+  hc_xAxis(categories = chest_pain$cp) %>% 
+  hc_add_series(data = chest_pain$count, name = "Chest Pain") %>%
+  hc_add_theme(hc_theme_538()) %>%
+  hc_title(text="Chest Pain Incidence")
+```
+
+***
+
+# Age incidence
+```{r}
+age<-data2 %>% 
+  group_by(age) %>% 
+  count() %>% 
+  filter(n>10)
+
+highchart() %>% 
+  hc_chart(type ="area",
+           options3d = list(enabled = TRUE, alpha = 15, beta = 15)) %>%
+  hc_xAxis(categories = age$age) %>% 
+  hc_add_series(data = age$n, name = "Age Incidence") %>%
+  hc_add_theme(hc_theme_google()) %>%
+  hc_title(text="Age")
+
+```
+
+***
+
+# Chest pain (cp) vs Blood Pressure (trtbps)
+```{r}
+data2 %>% 
+  ggplot(aes(x=sex, y=trtbps))+
+  geom_boxplot(fill='red')+
+  facet_grid(~cp)+
+  labs(title = "Corelation of Chest Pain with Blood Pressure", x="Sex", y="BP")
+
+```
+
+***
+
+# Chest pain (cp) vs Cholesterol (chol)
+```{r}
+data2 %>% 
+  ggplot(aes(x=sex, y=chol))+
+  geom_boxplot(fill="orange")+
+  facet_grid(~cp)+
+  labs(title = "Corelation of Chest Pain with Cholesterol", x="Sex", y="Cholesterol")
+
+```
+
+# Chest pain in relation to Resting Blood Pressure With Age
+
+```{r}
+data2 %>% 
+  ggplot(aes(x=age, y=trtbps, group=sex))+
+  geom_boxplot(fill="purple")+
+  facet_grid(~sex)+
+  labs(title = "Corelation of Resting BP with Sex", x="Sex", y="TRTBP")
+
+
+```
+
+
+***
+
+# Correlation
+```{r}
+data %>% 
+  select(age, sex, cp, fbs, restecg, chol, exng, output, thall) %>% 
+  cor() %>% 
+  hchart()
+
+```
+
+# Conclusion
+
+**Middle aged people are more prone to heart disease.**
+
+  
+**Age and Heart disease have positive correlation.**
+
+  
+**Cholesterol levels and Heart disease have positive correlation.**
+
+
+**Men are prone to more cholesterol levels than women.**
+
+
+**Exercise induced angina has negative impact on chest pain.**
+
+
+**Women are more prone to heart disease than men.**
+
+
+**Resting BP increases with Age and is more in Females than males.**
+
