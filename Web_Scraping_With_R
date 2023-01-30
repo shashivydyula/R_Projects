@@ -123,11 +123,11 @@ length(cast4)<-length(title)
 year<-gsub("[()]", "", year) # remove parentheses from year
 metascore<-str_squish(metascore) # remove additional spaces
 metascore <- gsub('Metascore','',metascore) # remove the word metascore
-genre <- sapply(genre, function(x) { gsub("[\r\n]", "", x) })
-synopsis <- sapply(synopsis, function(x) { gsub("[\r\n]", "", x) })
+genre <- sapply(genre, function(x) { gsub("[\r\n]", "", x) }) # remove line breaks
+synopsis <- sapply(synopsis, function(x) { gsub("[\r\n]", "", x) }) # remove line breaks
 
 
-#Step 6: Create a data frame that will now have all columns length equal and will replace missing values with NA
+#Step 6: Create a data frame that will now have all columns length equal and will replace missing values with NA or blanks (since I used gsub in above steps)
 thriller_movies<-data.frame(title=title, year=year, certificate=certificate, runtime=runtime,
                          genre=genre, rating=rating, 
                          metascore=metascore, synopsis=synopsis, director=director, 
