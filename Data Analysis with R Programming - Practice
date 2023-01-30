@@ -1,0 +1,1022 @@
+---
+title: "Google Data Analytics Professional Certification: R Practice and Revision - V1.0"
+author: "Dr. Shashikanth Vydyula -- \n[Check My Tableau Viz](https://public.tableau.com/app/profile/shashivydyula)"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    number_sections: false
+    highlight: pygments
+    code_folding: show
+---
+
+<style type="text/css">
+
+h1.title {
+  font-size: 38px;
+  color: DarkRed;
+  text-align: center;
+}
+h4.author { /* Header 4 - and the author and data headers use this too  */
+    font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkRed;
+  text-align: center;
+}
+h4.date { /* Header 4 - and the author and data headers use this too  */
+  font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+  text-align: center;
+}
+</style>
+
+***
+
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(echo=TRUE, error=FALSE,comment=NA, warning=FALSE)
+knitr::opts_chunk$set(out.width="100%", fig.height = 4.5, split=FALSE, fig.align = 'default')
+options(dplyr.summarise.inform = FALSE)
+```
+
+<center>![](https://media2.giphy.com/media/rGlAZysKBcjRCkAX7S/giphy.gif?cid=ecf05e47o94guaoxgazvbeq2jx97xzevts4fdbzjwnjbp3fy&rid=giphy.gif&ct=g)</center>
+
+***
+
+# Introduction
+
+
+
+<div style="color:white;
+           display:fill;
+           border-radius:5px;
+           background-color:#191970;
+           font-size:150%;
+           font-family:Verdana;
+           letter-spacing:0.5px">
+
+<p style="padding: 5px;
+              color:white;">
+
+
+First of all, Congratulations on completing the course. Your journey as Data Analyst has begun.
+I am compiling this notebook for all those who recently finished Google Data Analytics Professional Certification (including me 😉) on [Coursera](https://in.coursera.org/professional-certificates/google-data-analytics). Throughout this Markdown, I will not hide any syntax and the results of the query for your reference. But you can hide if you want to 😋 I hope this will be helpful for you to revise R and as a quick reference guide.
+</p>
+</div>
+
+
+
+<div class="alert alert-block alert-info"> <b>💭This Notebook will be updated whenever required or based on user inputs.</b> </div>
+
+***
+
+<div class="alert alert-block alert-info"> <b>Some important guides and forums 🔗 referred in compiling this notebook:</b>
+
+* [R Markdown: The Definitive Guide](https://bookdown.org/yihui/rmarkdown/) 
+
+* [Stack Overflow](https://stackoverflow.com/)
+
+* [GitHub](https://github.com/)
+
+* [Kaggle discussions](https://www.kaggle.com/discussion)
+
+* [W3Schools](https://www.w3schools.com/)
+
+* [This beaufiful guide on creating kaggle notebook](https://www.kaggle.com/discussion)
+
+</div>
+
+***
+
+
+# Preparations
+
+## As Kaggle has pre-installed packages required for R, we will be only loading the packages that are required for this tutorial.
+
+## Load libraries
+
+
+
+```{r, message = FALSE}
+
+# Package for datascience
+library('tidyverse') # essential R packages for data science
+library('data.table')
+# general visualisation
+library('ggplot2') # visualisation
+library('datasauRus') # visualization
+
+# general data manipulation
+library('dplyr') # data manipulation
+library('readr') # input/output
+library('skimr') # overview
+library('tibble') # data wrangling
+library('tidyr') # data wrangling
+library('purrr') # data wrangling
+library('stringr') # string manipulation
+library('forcats') # factor manipulation
+library('janitor') # data cleaning
+library('Tmisc') # data manipulation
+library('class') # functions for classification
+
+# Date + forecast
+library('lubridate') # date and time
+library('forecast') # time series analysis
+library('timetk') # time series analysis
+
+# file referencing
+library('here') # refer files
+
+```
+***
+
+<div class="alert alert-block alert-info"> 📌 
+Here are some functions that are used regularly in this tutorial:
+
+* __head:__ The head() function in R is used to display the first n rows present in the input data frame.
+
+* __str:__ str or structure displays structures of R objects.
+
+* __glimpse:__ The glimpse() is like a transposed version of print() : columns run down the page, and data runs across. This makes it possible to see every column in a data frame. It is a little like str() applied to a data frame but it tries to show you as much data as possible.
+
+* __colnames:__ The colnames() functions is used to obtain or set the names of the column of a matrix-like object.
+</div>
+
+# Loading CSV files/datasets and their structures
+
+
+> **Penguins**
+
+```{r, message=FALSE, warning=FALSE}
+penguins<-read.csv('../input/palmer-archipelago-antarctica-penguin-data/penguins_size.csv', stringsAsFactors = F)
+
+# check data
+str(penguins)
+```
+***
+
+> **Hotel Bookings**
+```{r}
+hotel_bookings<-read.csv('../input/hotel-booking-demand/hotel_bookings.csv', stringsAsFactors = F)
+
+# check data
+str(hotel_bookings)
+```
+***
+
+ 
+<div class="alert alert-block alert-info"> 📌 Diamonds and ToothGrowth datasets are part of tidyverse hence no need of loading them separately.</div>
+
+***
+
+<center> ![](https://media.tenor.com/r3XdvPsAV3kAAAAC/despicable-me-minions.gif)</center>
+
+***
+
+# Variables
+
+<div style="color:white;
+           display:fill;
+           border-radius:5px;
+           background-color:#FF8D33;
+           font-size:110%;
+           font-family:Verdana;
+           letter-spacing:0.5px">
+<p style="padding: 10px;
+              color:black;">
+Variables are containers for storing data values. To assign a value to a variable, use the <- sign.
+</p>
+</div>
+
+```{r}
+my_first_variable<- "my first variable" 
+my_second_variable<-22.2
+```
+***
+```{r}
+my_first_variable
+```
+***
+```{r}
+my_second_variable
+```
+# Vectors 
+<div style="color:white;
+           display:fill;
+           border-radius:5px;
+           background-color:#FF8D33;
+           font-size:110%;
+           font-family:Verdana;
+           letter-spacing:0.5px">
+<p style="padding: 10px;
+              color:black;">
+A vector is a list of items that are of the same type. To combine the list of items to a vector, use the c() function and separate the items by a comma. A vector can have one type of item i.e., numbers, integers, logic etc.
+</p>
+</div>
+```{r}
+vec_1<-c(1,2,3)
+vec_2<-c(1L, 2L, 3L)
+vec_3<-c("test", "your", "R", "skill")
+vec_4<-c(TRUE, FALSE)
+```
+***
+```{r}
+vec_1
+```
+***
+```{r}
+vec_2
+```
+***
+```{r}
+vec_3
+```
+***
+```{r}
+vec_4
+```
+***
+
+## Understanding variables using Structure (str) function
+```{r}
+str(my_first_variable)
+```
+***
+```{r}
+str(my_second_variable)
+```
+***
+
+<div class="alert alert-block alert-info"> 📌 see the difference between vec_1 and vec_2 below (vec_1 is num, and vec_2 is int)</div>
+```{r}
+str(vec_1)
+str(vec_2)
+```
+***
+```{r}
+str(vec_3)
+str(vec_4)
+```
+***
+
+# Lists
+
+<div style="color:white;
+           display:fill;
+           border-radius:5px;
+           background-color:#FF8D33;
+           font-size:110%;
+           font-family:Verdana;
+           letter-spacing:0.5px">
+<p style="padding: 10px;
+              color:black;">
+Lists are the R objects which contain elements of different types like − numbers, strings, vectors and another list inside it.
+</p>
+</div>
+
+```{r}
+list_1<-c("this is list", 1, 2L, TRUE)
+```
+
+```{r}
+list_1
+```
+
+```{r}
+str(list_1)
+```
+***
+
+#  Operators {.tabset .tabset-fade .tabset-pills}
+
+
+<div style="color:white;
+           display:fill;
+           border-radius:5px;
+           background-color:#FF8D33;
+           font-size:110%;
+           font-family:Verdana;
+           letter-spacing:0.5px">
+<p style="padding: 10px;
+              color:black;">
+Operators are the symbols directing the compiler to perform various kinds of operations between the operands.
+</p>
+</div>
+
+##  Calculations
+
+**These operators perform basic arithmetic operations like addition, subtraction, multiplication, division, exponent, modulus, etc.**
+
+```{r}
+first_quarter_sales<-176542
+second_quarter_sales<-235273
+```
+
+```{r}
+mid_year_sales<-first_quarter_sales + second_quarter_sales
+```
+***
+
+```{r}
+total_year_sales<-mid_year_sales * 2
+```
+```{r}
+total_year_sales
+```
+***
+
+##  Logical Operators
+
+
+**Logical operators return a logical data type such as TRUE or FALSE.**
+
+
+> __And operator gives true if both logics match and false if both logics match (represented by "&")__
+
+```{r}
+TRUE & TRUE
+TRUE & FALSE
+FALSE & TRUE
+FALSE & FALSE
+```
+
+```{r}
+a<-20
+```
+
+
+```{r}
+a>20
+```
+***
+```{r}
+a==20
+```
+***
+```{r}
+a<19
+```
+***
+```{r}
+a>19 & a<21
+```
+***
+```{r}
+a<20 & a<19
+```
+***
+```{r}
+a<21 & a>20
+```
+***
+
+
+
+> __OR operator gives TRUE if either logic is true and false if both are false represented by "|"__
+
+```{r}
+TRUE | FALSE
+FALSE | TRUE
+TRUE | FALSE
+FALSE | FALSE
+```
+
+```{r}
+y<-10
+
+```
+
+```{r}
+y>10 | y<9
+y>9 | y<10
+```
+
+> __Not operator = TRUE becomes FALSE (represented by "!")__
+```{r}
+b<-2
+```
+
+```{r}
+!b
+```
+
+## Conditional Operators
+> __if - sets a condition and returns the second statement as per the condition.__
+
+```{r}
+c<-10
+```
+
+```{r}
+if(c==10) {print("you are correct")}
+```
+***
+
+```{r}
+if(c>0) {print("c is a positive number")}
+```
+***
+
+> __else - combination with if__
+
+```{r}
+d<-10
+```
+
+```{r}
+if(d>10) {print("you are correct")} else {print("you are wrong")}
+```
+***
+```{r}
+if(d<0) {print("d is a negative number")} else{print("d is a positive number")}
+```
+***
+
+> __elseif - customization of if/else condition__
+```{r}
+z<- -1
+```
+
+```{r}
+if(z==0) {print("z is a neither positive nor negative number")} else if (z<0) {print("z is negative number")} else {print("z is a positive number")}
+```
+***
+
+# Pipes
+  
+<div style="color:white;
+           display:fill;
+           border-radius:5px;
+           background-color:#FF8D33;
+           font-size:110%;
+           font-family:Verdana;
+           letter-spacing:0.5px">
+<p style="padding: 10px;
+              color:black;">
+A Pipe represented by '%>%' in R, takes the output of one function and passes it into another function as an argument. This allows us to link a sequence of analysis steps.
+</p>
+</div>
+
+> Applying filter and arrange functions in a pipe to Tooth Growth Dataset
+```{r}
+filtered_toothgrowth<- ToothGrowth %>% 
+  filter(dose==0.5) %>% 
+  arrange(len)
+```
+
+```{r}
+head(filtered_toothgrowth)
+```
+# Some important dplyr functions {.tabset .tabset-fade .tabset-pills}
+
+## Filter
+```{r}
+filter_tg<- filter(ToothGrowth, dose==0.5)
+```
+***
+
+```{r}
+head(filter_tg)
+```
+***
+
+## Arrange (ascending order)
+```{r}
+arrange(filter_tg, len)
+```
+***
+## Arrange (descending order)
+```{r}
+arrange (filter_tg, -len)
+```
+***
+## Arrange (nested function)
+```{r}
+arrange(filter(ToothGrowth, dose==0.5))
+```
+***
+
+## Mutate
+> **Diamonds**
+```{r}
+mutate(diamonds, carat_2=carat*100)
+```
+***
+
+
+
+<div style="color:white;
+           display:fill;
+           border-radius:5px;
+           background-color:#5642C5;
+           font-size:110%;
+           font-family:Verdana;
+           letter-spacing:0.5px">
+<p style="padding: 10px;
+              color:white;">
+You can get same result as above (carat_2) with pipe function.
+</p>
+</div>
+
+
+```{r}
+diamonds %>% mutate(carat_2=carat*100)
+```
+***
+> **Penguins**
+```{r}
+penguin_mass_in_kg<-mutate(penguins, body_mass_in_kg=body_mass_g/1000)
+```
+```{r}
+head(penguin_mass_in_kg)
+```
+***
+```{r}
+penguin_flipper_length_m<-mutate(penguins, flipper_length_in_m=flipper_length_mm/1000)
+```
+```{r}
+head(penguin_flipper_length_m)
+```
+***
+
+# Creating own data frame (Optional Practicce section) {.tabset .tabset-fade .tabset-pills}
+
+## Creating vectors
+```{r}
+id<-c(1,2,3)
+names<-c("Manny", "Sid", "Diego")
+type_of_animal<-c("Mammoth", "Sloth", "Saber tooth")
+```
+## Creating dataframe
+```{r}
+ice_age<-data.frame(id, names, type_of_animal)
+```
+```{r}
+ice_age
+```
+***
+
+# Data Cleaning with Palmer Penguins dataset {.tabset .tabset-fade .tabset-pills}
+
+```{r}
+head(penguins)
+```
+***
+## Summary 
+> **Summary functions produce a summary of all records in the found set, or subsummary values for records in different groups.**
+```{r}
+summary(penguins)
+```
+***
+
+## Select
+
+```{r}
+penguins_species<-penguins %>% select(species)
+```
+
+```{r}
+head(penguins_species)
+```
+
+***
+
+```{r}
+penguins_without_species<-penguins%>%select(-species)
+```
+
+```{r}
+head(penguins_without_species)
+```
+
+***
+
+## Rename column
+```{r}
+renaming_column<-rename(penguins, island_new=island)
+```
+
+```{r}
+head(renaming_column)
+```
+***
+### or with pipe
+```{r}
+renaming_column_again<-penguins %>% rename(island_new=island)
+```
+
+```{r}
+head(renaming_column_again)
+```
+***
+## Rename with 
+### To upper case all column names
+
+```{r}
+upper_case_columns<-rename_with(penguins, toupper)
+```
+```{r}
+head(upper_case_columns)
+```
+***
+### To lower case all column names
+```{r}
+lower_case_columns<-rename_with(penguins, tolower)
+```
+```{r}
+head(lower_case_columns)
+```
+***
+
+
+## Clean names
+> **part of janitor package helps in cleaning column names**
+```{r}
+cleaned_penguins<-clean_names(penguins)
+```
+
+```{r}
+head(cleaned_penguins)
+```
+***
+
+# Organizing data {.tabset .tabset-fade .tabset-pills}
+
+## Arrange 
+
+> **Arrange culmen length in ascending order.**
+```{r}
+arrange_asc<-arrange(penguins, culmen_length_mm)
+```
+```{r}
+head(arrange_asc)
+```
+***
+> **Arrange culmen length in descending order.**
+```{r}
+arrange_des<-arrange(penguins, -culmen_length_mm)
+```
+
+```{r}
+head(arrange_des)
+```
+***
+
+## Save new df 
+> **Saving penguins data to a new dataframe with culmen length in descending order**
+```{r}
+penguins_2<- penguins %>% arrange(-culmen_length_mm)
+```
+***
+```{r}
+head(penguins_2)
+```
+***
+## Group By
+
+> **Group By and summarize mean culmen length.**
+```{r}
+penguins %>% group_by(island) %>% summarize(mean_culmen_length=mean(culmen_length_mm))
+```
+***
+
+<div class="alert alert-block alert-info"> 📌 mean function gave N/A for Biscoe and Torgersen because there are some N/A values in culmen_length_mm column. </div>
+> **drop_na removes N/A values - drop_na() drops N/A from all rows.**
+```{r}
+penguins %>% group_by(island) %>% drop_na ()%>% summarize(mean_culmen_length=mean(culmen_length_mm))
+```
+***
+> **drop_na(culmen_length_mm) - removes N/A values from culmen_length_mm column only.**
+```{r}
+penguins %>% group_by(island) %>% drop_na (culmen_length_mm)%>% summarize(mean_culmen_length=mean(culmen_length_mm))
+```
+***
+
+> **Group by species without dropping N/A.**
+```{r}
+penguins %>% group_by(species) %>% summarize(max_culmen_length=max(culmen_length_mm), min_culmen_length=min(culmen_length_mm))
+```
+***
+
+> **drop_na from all columns and group by species.**
+```{r}
+penguins %>% group_by(species) %>% drop_na() %>% summarize(max_culmen_length=max(culmen_length_mm), min_culmen_length=min(culmen_length_mm))
+```
+***
+
+> **drop_na from culmen_length_mm column only**
+```{r}
+penguins %>% group_by(species) %>% drop_na(culmen_length_mm) %>% summarize(max_culmen_length=max(culmen_length_mm), min_culmen_length=min(culmen_length_mm))
+```
+***
+
+## Filter
+
+> **Filter function must use '==' to filter with specific condition
+```{r}
+filter_adelie<-penguins %>% filter(species=='Adelie')
+```
+```{r}
+head(filter_adelie)
+```
+***
+
+
+# Data cleaning activity with hotel bookings dataset {.tabset .tabset-fade .tabset-pills}
+
+## Trimming 
+> **To view columns only in which we are interested**
+
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+trimmed_hotel_bookings<-hotel_bookings %>% select(hotel, is_canceled, lead_time)
+```
+```{r}
+head(trimmed_hotel_bookings)
+```
+***
+## Renaming
+> **Hotel to Hotel Type**
+```{r}
+rename_hotel_type<-trimmed_hotel_bookings %>% rename(hotel_type=hotel)
+```
+
+```{r}
+head(rename_hotel_type)
+```
+***
+
+## Combining
+> **Year and Month**
+
+```{r}
+unite_year_month_df<-hotel_bookings %>% select(arrival_date_year, arrival_date_month) %>% 
+  unite(arrival_year_month, c("arrival_date_year", "arrival_date_month"), sep=' ')
+```
+
+```{r}
+head(unite_year_month_df)
+```
+***
+
+## Calculation
+> **Calculating the number of cancelled bookings and average lead time**
+
+```{r}
+canceled_booking_and_avg_lead_time<-hotel_bookings %>% summarise(total_canceled_bookings=sum(is_canceled),avg_lead_time=mean(lead_time))
+```
+
+```{r}
+head(canceled_booking_and_avg_lead_time)
+```
+***
+
+## Combining II
+> **Day, Month and Year**
+
+```{r}
+unite_day_month_year<-hotel_bookings %>% select(arrival_date_year, arrival_date_month, arrival_date_day_of_month) %>% 
+  unite(arrival_day_month_year, c("arrival_date_day_of_month", "arrival_date_month", "arrival_date_year"), sep=' ')
+```
+
+```{r}
+head(unite_day_month_year)
+```
+***
+
+# Visualization with ggplot2 {.tabset .tabset-fade .tabset-pills}
+
+## Scatter plots
+
+```{r}
+ggplot(data=penguins) + geom_point(mapping=aes(x=flipper_length_mm, y=body_mass_g))
+```
+
+```{r}
+ggplot(data=diamonds) + geom_point(mapping=aes(x=color, y=carat))
+```
+
+```{r}
+ggplot(data=penguins) + geom_point(mapping = aes(x=culmen_length_mm, y=culmen_depth_mm))
+```
+
+```{r}
+ggplot(data=hotel_bookings) + geom_point(mapping=aes(x=lead_time, y=children))
+```
+
+```{r}
+ggplot(data=hotel_bookings) + geom_point(mapping = aes(x=stays_in_weekend_nights, y = children))
+```
+
+
+## Plot aesthetics
+
+> **Adding color to plot.**
+```{r}
+ggplot(data=penguins) + geom_point(mapping = aes(x=flipper_length_mm, y=body_mass_g, color=species))
+```
+
+
+> **Shaping each species with color.**
+```{r}
+ggplot(data=penguins) + geom_point(mapping = aes(x=flipper_length_mm, y=body_mass_g, color=species, shape=species))
+```
+
+> **increasing size of plot points.**
+```{r}
+ggplot(data=penguins) + geom_point(mapping = aes(x=flipper_length_mm, y=body_mass_g, color=species, shape=species, size=species))
+```
+
+> **Giving one color to all plot points.**
+```{r}
+ggplot(data=penguins) + geom_point(mapping=aes(x=flipper_length_mm, y=body_mass_g), color='purple')
+```
+
+## Changing geoms
+
+```{r}
+ggplot(data=penguins) + geom_line(mapping = aes(x=flipper_length_mm, y=body_mass_g))
+```
+
+
+```{r}
+ggplot(data=penguins) + 
+  geom_smooth(mapping=aes(x=flipper_length_mm, y=body_mass_g))
+```
+
+
+## Adding two geoms
+```{r}
+ggplot(data=penguins) + 
+  geom_point(mapping=aes(x=flipper_length_mm, y=body_mass_g, color=species)) + 
+                                     geom_smooth(mapping = aes(x=flipper_length_mm, y=body_mass_g))
+```
+
+
+## Adding different lines
+```{r}
+ggplot(data=penguins) + 
+  geom_line(mapping=aes(x=flipper_length_mm, y=body_mass_g, color=species, linetype=species))
+```
+
+
+## Jitter ggplot
+```{r }
+ggplot(data=penguins) + 
+  geom_jitter(mapping=aes(x=flipper_length_mm, y=body_mass_g))
+```
+
+
+## Bars
+```{r}
+ggplot(data=diamonds) + geom_bar(mapping=aes(x=cut))
+```
+
+```{r}
+ggplot(data=diamonds) + geom_bar(mapping=aes(x=cut, color=cut))
+```
+
+```{r}
+ggplot(data=diamonds) + geom_bar(mapping=aes(x=cut, color=cut, fill=cut))
+```
+
+> **Stacked bar graph with clarity criteria.**
+```{r}
+ggplot(data=diamonds) + geom_bar(mapping = aes(x=cut, fill=clarity))
+```
+
+## Facets 
+
+> **Facet wrap is for one variable, facet grid is for 2 variables.**
+
+> Facet Wrap
+```{r}
+ggplot(data=penguins) + 
+  geom_point(mapping=aes(x=flipper_length_mm, y=body_mass_g, color=species)) + 
+  facet_wrap(~species)
+```
+
+```{r}
+ggplot(data=diamonds) + geom_bar(mapping=aes(x=color, fill=cut)) + facet_wrap(~cut)
+```
+
+
+> **Facet grid (Facet grid with sex and species variables).**
+```{r}
+ggplot(data=penguins) + 
+  geom_point(mapping=aes(x=flipper_length_mm, y=body_mass_g, color=species)) + 
+  facet_grid(sex~species)
+```
+
+## Hotel Booking data plots
+```{r}
+ggplot(data=hotel_bookings) + geom_bar(mapping=aes(x=distribution_channel, fill=deposit_type))
+```
+
+```{r}
+ggplot(data=hotel_bookings) + geom_bar(mapping=aes(x=distribution_channel, fill=market_segment))
+```
+
+```{r}
+ggplot(data=hotel_bookings) + 
+  geom_bar(mapping=aes(x=distribution_channel, fill=distribution_channel)) + facet_wrap(~deposit_type)
+```
+
+```{r}
+ggplot(data=hotel_bookings) + 
+  geom_bar(mapping=aes(x=distribution_channel)) + facet_wrap(market_segment~deposit_type)
+```
+
+```{r}
+ggplot(data=hotel_bookings) + geom_bar(mapping=aes(x=hotel, fill=market_segment)) + facet_wrap(~market_segment)
+```
+
+```{r}
+ggplot(data=hotel_bookings) + geom_bar(mapping=aes(x=hotel, fill=hotel)) + facet_wrap(~market_segment)
+```
+
+## Labels and Annotations
+
+> **Adding title to plot.**
+
+```{r}
+ggplot(data=penguins) + 
+  geom_point(mapping=aes(x=flipper_length_mm, y=body_mass_g, color=species)) +
+  labs(title="Palmer penguins: Flipper length Vs Body Mass")
+```
+
+> **Adding subtitle.**
+```{r}
+ggplot(data=penguins) + 
+  geom_point(mapping=aes(x=flipper_length_mm, y=body_mass_g, color=species)) +
+  labs(title="Palmer penguins: Flipper length Vs Body Mass", subtitle = "Sample of Penguin species")
+```
+
+> **Adding caption.**
+```{r}
+ggplot(data=penguins) + 
+  geom_point(mapping=aes(x=flipper_length_mm, y=body_mass_g, color=species)) +
+  labs(title="Palmer penguins: Flipper length Vs Body Mass", subtitle = "Sample of Penguin species", caption = "Data collected by Dr. Kristen Gorman, 2007-2009")
+```
+
+> **Annotate**
+
+```{r}
+ggplot(data=penguins) + 
+geom_point(mapping=aes(x=flipper_length_mm, y=body_mass_g, color=species)) + 
+labs(title="Palmer Penguins: Body Mass Vs. Flipper Length", subtitle = "Sample of Three Penguin Species", caption = "Data collected by Dr. Kristen Gorman, 2007-2009")+ 
+annotate("text", x=220, y=3500, label="The Gentoos are the largest") 
+```
+
+> **Adding color and changing font of Annotation.**
+```{r}
+ggplot(data=penguins) + 
+geom_point(mapping=aes(x=flipper_length_mm, y=body_mass_g, color=species)) + 
+labs(title="Palmer Penguins: Body Mass Vs. Flipper Length", subtitle = "Sample of Three Penguin Species", caption = "Data collected by Dr. Kristen Gorman, 2007-2009")+ 
+annotate("text", x=220, y=3500, label="The Gentoos are the largest", color="red", fontface="bold", size=4) 
+```
+
+> **Changing the angle of annotation.**
+```{r}
+ggplot(data=penguins) + 
+geom_point(mapping=aes(x=flipper_length_mm, y=body_mass_g, color=species)) + 
+labs(title="Palmer Penguins: Body Mass Vs. Flipper Length", subtitle = "Sample of Three Penguin Species", caption = "Data collected by Dr. Kristen Gorman, 2007-2009")+ 
+annotate("text", x=220, y=3500, label="The Gentoos are the largest", color="red", fontface="bold", size=4, angle=25) 
+```
+
+***
+
+# Optional Practice task {.tabset .tabset-fade .tabset-pills}
+
+## Creating dataframe with first name & last name
+
+```{r}
+rank<-c(1:3)
+name<-c("Clark Kent", "Barry Allen", "Prince Uxas")
+character<-c("Superman","Flash", "Darkseid" )
+```
+
+```{r}
+dc_comics<-data.frame(rank, name, character)
+```
+
+```{r}
+dc_comics 
+```
+***
+## Separating name to first_name & last_name
+```{r}
+separate(dc_comics, name, into = c('first_name', 'last_name'), sep=' ')
+```
+
+> **Separting with pipe**
+
+```{r}
+dc_comics %>% separate(name,into=c('first_name', 'last_name'), sep=' ')
+```
+***
+
+# To be continued...⌨️
+
+
+<div class="alert alert-block alert-info"> **Thats all for now. I hope this Notebook has helped you revise R and have some practice. All the best. We will meet again 🙌** </div>
