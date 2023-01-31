@@ -2,6 +2,7 @@
 
 library('rvest')
 library('dplyr')
+library('tidyverse')
 
 #Step 1: Create function to navigate between available pages
 html_more_elements <- function(session, css, more_css) {
