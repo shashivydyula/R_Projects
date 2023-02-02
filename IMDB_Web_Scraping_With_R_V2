@@ -1,0 +1,64 @@
+get_imdb <- function(index) {
+  cat("Scraping index:", index, "\n")
+  movies <-
+    str_c(
+      "https://www.imdb.com/search/title/?genres=action&sort=user_rating,desc&title_type=feature&num_votes=25000,&pf_rd_m=A2FGELUUNOQJNL&pf_rd_p=f11158cc-b50b-4c4d-b0a2-40b32863395b&pf_rd_r=HG179A3QP8P3A1X7X6JX&pf_rd_s=right-6&pf_rd_t=15506&pf_rd_i=top&ref_=chttp_gnr_1",
+      index,
+      "&ref_=adv_nxt") %>%
+    read_html()
+  
+  movies %>%
+    html_elements(".lister-item-content") %>% # the cards
+    map_dfr(
+      ~ tibble(
+        # interate through the list and grab the elements:
+        title = .x %>%
+          html_element(".lister-item-header a") %>%
+          html_text2(),
+        year = .x %>%
+          html_element(".text-muted.unbold") %>%
+          html_text2(),
+        certificate = .x %>%
+          html_element(".certificate") %>%
+          html_text2(),
+        runtime = .x %>%
+          html_element(".runtime") %>%
+          html_text2(),
+        genre = .x %>%
+          html_element(".genre") %>%
+          html_text2(),
+        rating = .x %>%
+          html_element(".ratings-imdb-rating strong") %>%
+          html_text2(),
+        metascore = .x %>%
+          html_element(".ratings-metascore") %>%
+          html_text2(),
+        synopsis = .x %>%
+          html_element(".ratings-bar+ .text-muted") %>%
+          html_text2(),
+        director = .x %>%
+          html_element(".text-muted+ p a:nth-child(1)") %>%
+          html_text2(),
+        votes = .x %>%
+          html_element(".sort-num_votes-visible span:nth-child(2)") %>%
+          html_text2(),
+        gross = .x %>%
+          html_element(".ghost~ .text-muted+ span") %>%
+          html_text2(),
+        cast1 = .x %>%
+          html_element('a[href*="adv_li_st_0"]') %>%
+          html_text2(),
+        cast2 = .x %>%
+          html_element('a[href*="adv_li_st_1"]') %>%
+          html_text2(),
+        cast3 = .x %>%
+          html_element('a[href*="adv_li_st_2"]') %>%
+          html_text2(),
+        cast4 = .x %>%
+          html_element('a[href*="adv_li_st_3"]') %>%
+          html_text2()
+      )
+    )
+}
+
+action_movies <- map_dfr(seq(1, 1712, by = 50), get_imdb)
