@@ -1465,10 +1465,10 @@ movies<-rbind(action_movies, adventure_movies, animation_movies, biography_movie
 
 
 
-movies$year <- gsub('[()]','',movies$year)
-movies<-distinct(movies, title, director, .keep_all= TRUE)
-movies$metascore<-gsub('Metascore', "", movies$metascore)
-view(movies)
+movies$year <- gsub('[()]','',movies$year) #remove parantheses
+movies<-distinct(movies, title, director, .keep_all= TRUE) #keep remade movies and movies with same name
+movies$metascore<-gsub('Metascore', "", movies$metascore) #remove word metascore
+
 fwrite(movies, "movies.csv")
 
 
