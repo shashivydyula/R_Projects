@@ -1,0 +1,1470 @@
+#1. Action movies
+get_imdb <- function(index) {
+  cat("Scraping index:", index, "\n")
+  movies <-
+    str_c(
+      "https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=action&sort=user_rating,desc&start=",
+      index,
+      "&ref_=adv_nxt") %>%
+    read_html()
+  
+  movies %>%
+    html_elements(".lister-item-content") %>% # the cards
+    map_dfr(
+      ~ tibble(
+        # interate through the list and grab the elements:
+        title = .x %>%
+          html_element(".lister-item-header a") %>%
+          html_text2(),
+        year = .x %>%
+          html_element(".text-muted.unbold") %>%
+          html_text2(),
+        certificate = .x %>%
+          html_element(".certificate") %>%
+          html_text2(),
+        runtime = .x %>%
+          html_element(".runtime") %>%
+          html_text2(),
+        genre = .x %>%
+          html_element(".genre") %>%
+          html_text2(),
+        rating = .x %>%
+          html_element(".ratings-imdb-rating strong") %>%
+          html_text2(),
+        metascore = .x %>%
+          html_element(".ratings-metascore") %>%
+          html_text2(),
+        synopsis = .x %>%
+          html_element(".ratings-bar+ .text-muted") %>%
+          html_text2(),
+        director = .x %>%
+          html_element(".text-muted+ p a:nth-child(1)") %>%
+          html_text2(),
+        votes = .x %>%
+          html_element(".sort-num_votes-visible span:nth-child(2)") %>%
+          html_text2(),
+        gross = .x %>%
+          html_element(".ghost~ .text-muted+ span") %>%
+          html_text2(),
+        cast1 = .x %>%
+          html_element('a[href*="adv_li_st_0"]') %>%
+          html_text2(),
+        cast2 = .x %>%
+          html_element('a[href*="adv_li_st_1"]') %>%
+          html_text2(),
+        cast3 = .x %>%
+          html_element('a[href*="adv_li_st_2"]') %>%
+          html_text2(),
+        cast4 = .x %>%
+          html_element('a[href*="adv_li_st_3"]') %>%
+          html_text2()
+      )
+    )
+}
+
+action_movies <- map_dfr(seq(1, 1711, by = 50), get_imdb)
+
+#2. Adventure
+get_imdb <- function(index) {
+  cat("Scraping index:", index, "\n")
+  movies <-
+    str_c(
+      "https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=adventure&sort=user_rating,desc&start=",
+      index,
+      "&ref_=adv_nxt") %>%
+    read_html()
+  
+  movies %>%
+    html_elements(".lister-item-content") %>% # the cards
+    map_dfr(
+      ~ tibble(
+        # interate through the list and grab the elements:
+        title = .x %>%
+          html_element(".lister-item-header a") %>%
+          html_text2(),
+        year = .x %>%
+          html_element(".text-muted.unbold") %>%
+          html_text2(),
+        certificate = .x %>%
+          html_element(".certificate") %>%
+          html_text2(),
+        runtime = .x %>%
+          html_element(".runtime") %>%
+          html_text2(),
+        genre = .x %>%
+          html_element(".genre") %>%
+          html_text2(),
+        rating = .x %>%
+          html_element(".ratings-imdb-rating strong") %>%
+          html_text2(),
+        metascore = .x %>%
+          html_element(".ratings-metascore") %>%
+          html_text2(),
+        synopsis = .x %>%
+          html_element(".ratings-bar+ .text-muted") %>%
+          html_text2(),
+        director = .x %>%
+          html_element(".text-muted+ p a:nth-child(1)") %>%
+          html_text2(),
+        votes = .x %>%
+          html_element(".sort-num_votes-visible span:nth-child(2)") %>%
+          html_text2(),
+        gross = .x %>%
+          html_element(".ghost~ .text-muted+ span") %>%
+          html_text2(),
+        cast1 = .x %>%
+          html_element('a[href*="adv_li_st_0"]') %>%
+          html_text2(),
+        cast2 = .x %>%
+          html_element('a[href*="adv_li_st_1"]') %>%
+          html_text2(),
+        cast3 = .x %>%
+          html_element('a[href*="adv_li_st_2"]') %>%
+          html_text2(),
+        cast4 = .x %>%
+          html_element('a[href*="adv_li_st_3"]') %>%
+          html_text2()
+      )
+    )
+}
+
+adventure_movies <- map_dfr(seq(1, 1235, by = 50), get_imdb)
+
+#3. Animation
+get_imdb <- function(index) {
+  cat("Scraping index:", index, "\n")
+  movies <-
+    str_c(
+      "https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=animation&sort=user_rating,desc&start=",
+      index,
+      "&ref_=adv_nxt") %>%
+    read_html()
+  
+  movies %>%
+    html_elements(".lister-item-content") %>% # the cards
+    map_dfr(
+      ~ tibble(
+        # interate through the list and grab the elements:
+        title = .x %>%
+          html_element(".lister-item-header a") %>%
+          html_text2(),
+        year = .x %>%
+          html_element(".text-muted.unbold") %>%
+          html_text2(),
+        certificate = .x %>%
+          html_element(".certificate") %>%
+          html_text2(),
+        runtime = .x %>%
+          html_element(".runtime") %>%
+          html_text2(),
+        genre = .x %>%
+          html_element(".genre") %>%
+          html_text2(),
+        rating = .x %>%
+          html_element(".ratings-imdb-rating strong") %>%
+          html_text2(),
+        metascore = .x %>%
+          html_element(".ratings-metascore") %>%
+          html_text2(),
+        synopsis = .x %>%
+          html_element(".ratings-bar+ .text-muted") %>%
+          html_text2(),
+        director = .x %>%
+          html_element(".text-muted+ p a:nth-child(1)") %>%
+          html_text2(),
+        votes = .x %>%
+          html_element(".sort-num_votes-visible span:nth-child(2)") %>%
+          html_text2(),
+        gross = .x %>%
+          html_element(".ghost~ .text-muted+ span") %>%
+          html_text2(),
+        cast1 = .x %>%
+          html_element('a[href*="adv_li_st_0"]') %>%
+          html_text2(),
+        cast2 = .x %>%
+          html_element('a[href*="adv_li_st_1"]') %>%
+          html_text2(),
+        cast3 = .x %>%
+          html_element('a[href*="adv_li_st_2"]') %>%
+          html_text2(),
+        cast4 = .x %>%
+          html_element('a[href*="adv_li_st_3"]') %>%
+          html_text2()
+      )
+    )
+}
+
+animation_movies <- map_dfr(seq(1, 327, by = 50), get_imdb)
+
+#4. Biography
+get_imdb <- function(index) {
+  cat("Scraping index:", index, "\n")
+  movies <-
+    str_c(
+      "https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=biography&sort=user_rating,desc&start=",
+      index,
+      "&ref_=adv_nxt") %>%
+    read_html()
+  
+  movies %>%
+    html_elements(".lister-item-content") %>% # the cards
+    map_dfr(
+      ~ tibble(
+        # interate through the list and grab the elements:
+        title = .x %>%
+          html_element(".lister-item-header a") %>%
+          html_text2(),
+        year = .x %>%
+          html_element(".text-muted.unbold") %>%
+          html_text2(),
+        certificate = .x %>%
+          html_element(".certificate") %>%
+          html_text2(),
+        runtime = .x %>%
+          html_element(".runtime") %>%
+          html_text2(),
+        genre = .x %>%
+          html_element(".genre") %>%
+          html_text2(),
+        rating = .x %>%
+          html_element(".ratings-imdb-rating strong") %>%
+          html_text2(),
+        metascore = .x %>%
+          html_element(".ratings-metascore") %>%
+          html_text2(),
+        synopsis = .x %>%
+          html_element(".ratings-bar+ .text-muted") %>%
+          html_text2(),
+        director = .x %>%
+          html_element(".text-muted+ p a:nth-child(1)") %>%
+          html_text2(),
+        votes = .x %>%
+          html_element(".sort-num_votes-visible span:nth-child(2)") %>%
+          html_text2(),
+        gross = .x %>%
+          html_element(".ghost~ .text-muted+ span") %>%
+          html_text2(),
+        cast1 = .x %>%
+          html_element('a[href*="adv_li_st_0"]') %>%
+          html_text2(),
+        cast2 = .x %>%
+          html_element('a[href*="adv_li_st_1"]') %>%
+          html_text2(),
+        cast3 = .x %>%
+          html_element('a[href*="adv_li_st_2"]') %>%
+          html_text2(),
+        cast4 = .x %>%
+          html_element('a[href*="adv_li_st_3"]') %>%
+          html_text2()
+      )
+    )
+}
+
+biography_movies <- map_dfr(seq(1, 432, by = 50), get_imdb)
+
+#5. Comedy
+get_imdb <- function(index) {
+  cat("Scraping index:", index, "\n")
+  movies <-
+    str_c(
+      "https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=comedy&sort=user_rating,desc&start=",
+      index,
+      "&ref_=adv_nxt") %>%
+    read_html()
+  
+  movies %>%
+    html_elements(".lister-item-content") %>% # the cards
+    map_dfr(
+      ~ tibble(
+        # interate through the list and grab the elements:
+        title = .x %>%
+          html_element(".lister-item-header a") %>%
+          html_text2(),
+        year = .x %>%
+          html_element(".text-muted.unbold") %>%
+          html_text2(),
+        certificate = .x %>%
+          html_element(".certificate") %>%
+          html_text2(),
+        runtime = .x %>%
+          html_element(".runtime") %>%
+          html_text2(),
+        genre = .x %>%
+          html_element(".genre") %>%
+          html_text2(),
+        rating = .x %>%
+          html_element(".ratings-imdb-rating strong") %>%
+          html_text2(),
+        metascore = .x %>%
+          html_element(".ratings-metascore") %>%
+          html_text2(),
+        synopsis = .x %>%
+          html_element(".ratings-bar+ .text-muted") %>%
+          html_text2(),
+        director = .x %>%
+          html_element(".text-muted+ p a:nth-child(1)") %>%
+          html_text2(),
+        votes = .x %>%
+          html_element(".sort-num_votes-visible span:nth-child(2)") %>%
+          html_text2(),
+        gross = .x %>%
+          html_element(".ghost~ .text-muted+ span") %>%
+          html_text2(),
+        cast1 = .x %>%
+          html_element('a[href*="adv_li_st_0"]') %>%
+          html_text2(),
+        cast2 = .x %>%
+          html_element('a[href*="adv_li_st_1"]') %>%
+          html_text2(),
+        cast3 = .x %>%
+          html_element('a[href*="adv_li_st_2"]') %>%
+          html_text2(),
+        cast4 = .x %>%
+          html_element('a[href*="adv_li_st_3"]') %>%
+          html_text2()
+      )
+    )
+}
+
+comedy_movies <- map_dfr(seq(1, 2170, by = 50), get_imdb)
+
+#6. Crime
+get_imdb <- function(index) {
+  cat("Scraping index:", index, "\n")
+  movies <-
+    str_c(
+      "https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=crime&sort=user_rating,desc&start=",
+      index,
+      "&ref_=adv_nxt") %>%
+    read_html()
+  
+  movies %>%
+    html_elements(".lister-item-content") %>% # the cards
+    map_dfr(
+      ~ tibble(
+        # interate through the list and grab the elements:
+        title = .x %>%
+          html_element(".lister-item-header a") %>%
+          html_text2(),
+        year = .x %>%
+          html_element(".text-muted.unbold") %>%
+          html_text2(),
+        certificate = .x %>%
+          html_element(".certificate") %>%
+          html_text2(),
+        runtime = .x %>%
+          html_element(".runtime") %>%
+          html_text2(),
+        genre = .x %>%
+          html_element(".genre") %>%
+          html_text2(),
+        rating = .x %>%
+          html_element(".ratings-imdb-rating strong") %>%
+          html_text2(),
+        metascore = .x %>%
+          html_element(".ratings-metascore") %>%
+          html_text2(),
+        synopsis = .x %>%
+          html_element(".ratings-bar+ .text-muted") %>%
+          html_text2(),
+        director = .x %>%
+          html_element(".text-muted+ p a:nth-child(1)") %>%
+          html_text2(),
+        votes = .x %>%
+          html_element(".sort-num_votes-visible span:nth-child(2)") %>%
+          html_text2(),
+        gross = .x %>%
+          html_element(".ghost~ .text-muted+ span") %>%
+          html_text2(),
+        cast1 = .x %>%
+          html_element('a[href*="adv_li_st_0"]') %>%
+          html_text2(),
+        cast2 = .x %>%
+          html_element('a[href*="adv_li_st_1"]') %>%
+          html_text2(),
+        cast3 = .x %>%
+          html_element('a[href*="adv_li_st_2"]') %>%
+          html_text2(),
+        cast4 = .x %>%
+          html_element('a[href*="adv_li_st_3"]') %>%
+          html_text2()
+      )
+    )
+}
+
+crime_movies <- map_dfr(seq(1, 1285, by = 50), get_imdb)
+
+#7. Drama
+get_imdb <- function(index) {
+  cat("Scraping index:", index, "\n")
+  movies <-
+    str_c(
+      "https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=drama&sort=user_rating,desc&start=",
+      index,
+      "&ref_=adv_nxt") %>%
+    read_html()
+  
+  movies %>%
+    html_elements(".lister-item-content") %>% # the cards
+    map_dfr(
+      ~ tibble(
+        # interate through the list and grab the elements:
+        title = .x %>%
+          html_element(".lister-item-header a") %>%
+          html_text2(),
+        year = .x %>%
+          html_element(".text-muted.unbold") %>%
+          html_text2(),
+        certificate = .x %>%
+          html_element(".certificate") %>%
+          html_text2(),
+        runtime = .x %>%
+          html_element(".runtime") %>%
+          html_text2(),
+        genre = .x %>%
+          html_element(".genre") %>%
+          html_text2(),
+        rating = .x %>%
+          html_element(".ratings-imdb-rating strong") %>%
+          html_text2(),
+        metascore = .x %>%
+          html_element(".ratings-metascore") %>%
+          html_text2(),
+        synopsis = .x %>%
+          html_element(".ratings-bar+ .text-muted") %>%
+          html_text2(),
+        director = .x %>%
+          html_element(".text-muted+ p a:nth-child(1)") %>%
+          html_text2(),
+        votes = .x %>%
+          html_element(".sort-num_votes-visible span:nth-child(2)") %>%
+          html_text2(),
+        gross = .x %>%
+          html_element(".ghost~ .text-muted+ span") %>%
+          html_text2(),
+        cast1 = .x %>%
+          html_element('a[href*="adv_li_st_0"]') %>%
+          html_text2(),
+        cast2 = .x %>%
+          html_element('a[href*="adv_li_st_1"]') %>%
+          html_text2(),
+        cast3 = .x %>%
+          html_element('a[href*="adv_li_st_2"]') %>%
+          html_text2(),
+        cast4 = .x %>%
+          html_element('a[href*="adv_li_st_3"]') %>%
+          html_text2()
+      )
+    )
+}
+
+drama_movies <- map_dfr(seq(1, 3289, by = 50), get_imdb)
+
+#8. Family
+get_imdb <- function(index) {
+  cat("Scraping index:", index, "\n")
+  movies <-
+    str_c(
+      "https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=family&sort=user_rating,desc&start=",
+      index,
+      "&ref_=adv_nxt") %>%
+    read_html()
+  
+  movies %>%
+    html_elements(".lister-item-content") %>% # the cards
+    map_dfr(
+      ~ tibble(
+        # interate through the list and grab the elements:
+        title = .x %>%
+          html_element(".lister-item-header a") %>%
+          html_text2(),
+        year = .x %>%
+          html_element(".text-muted.unbold") %>%
+          html_text2(),
+        certificate = .x %>%
+          html_element(".certificate") %>%
+          html_text2(),
+        runtime = .x %>%
+          html_element(".runtime") %>%
+          html_text2(),
+        genre = .x %>%
+          html_element(".genre") %>%
+          html_text2(),
+        rating = .x %>%
+          html_element(".ratings-imdb-rating strong") %>%
+          html_text2(),
+        metascore = .x %>%
+          html_element(".ratings-metascore") %>%
+          html_text2(),
+        synopsis = .x %>%
+          html_element(".ratings-bar+ .text-muted") %>%
+          html_text2(),
+        director = .x %>%
+          html_element(".text-muted+ p a:nth-child(1)") %>%
+          html_text2(),
+        votes = .x %>%
+          html_element(".sort-num_votes-visible span:nth-child(2)") %>%
+          html_text2(),
+        gross = .x %>%
+          html_element(".ghost~ .text-muted+ span") %>%
+          html_text2(),
+        cast1 = .x %>%
+          html_element('a[href*="adv_li_st_0"]') %>%
+          html_text2(),
+        cast2 = .x %>%
+          html_element('a[href*="adv_li_st_1"]') %>%
+          html_text2(),
+        cast3 = .x %>%
+          html_element('a[href*="adv_li_st_2"]') %>%
+          html_text2(),
+        cast4 = .x %>%
+          html_element('a[href*="adv_li_st_3"]') %>%
+          html_text2()
+      )
+    )
+}
+
+family_movies <- map_dfr(seq(1, 594, by = 50), get_imdb)
+
+#9. Fantasy
+get_imdb <- function(index) {
+  cat("Scraping index:", index, "\n")
+  movies <-
+    str_c(
+      "https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=fantasy&sort=user_rating,desc&start=",
+      index,
+      "&ref_=adv_nxt") %>%
+    read_html()
+  
+  movies %>%
+    html_elements(".lister-item-content") %>% # the cards
+    map_dfr(
+      ~ tibble(
+        # interate through the list and grab the elements:
+        title = .x %>%
+          html_element(".lister-item-header a") %>%
+          html_text2(),
+        year = .x %>%
+          html_element(".text-muted.unbold") %>%
+          html_text2(),
+        certificate = .x %>%
+          html_element(".certificate") %>%
+          html_text2(),
+        runtime = .x %>%
+          html_element(".runtime") %>%
+          html_text2(),
+        genre = .x %>%
+          html_element(".genre") %>%
+          html_text2(),
+        rating = .x %>%
+          html_element(".ratings-imdb-rating strong") %>%
+          html_text2(),
+        metascore = .x %>%
+          html_element(".ratings-metascore") %>%
+          html_text2(),
+        synopsis = .x %>%
+          html_element(".ratings-bar+ .text-muted") %>%
+          html_text2(),
+        director = .x %>%
+          html_element(".text-muted+ p a:nth-child(1)") %>%
+          html_text2(),
+        votes = .x %>%
+          html_element(".sort-num_votes-visible span:nth-child(2)") %>%
+          html_text2(),
+        gross = .x %>%
+          html_element(".ghost~ .text-muted+ span") %>%
+          html_text2(),
+        cast1 = .x %>%
+          html_element('a[href*="adv_li_st_0"]') %>%
+          html_text2(),
+        cast2 = .x %>%
+          html_element('a[href*="adv_li_st_1"]') %>%
+          html_text2(),
+        cast3 = .x %>%
+          html_element('a[href*="adv_li_st_2"]') %>%
+          html_text2(),
+        cast4 = .x %>%
+          html_element('a[href*="adv_li_st_3"]') %>%
+          html_text2()
+      )
+    )
+}
+
+fantasy_movies <- map_dfr(seq(1, 834, by = 50), get_imdb)
+
+#10. Film-Noir
+get_imdb <- function(index) {
+  cat("Scraping index:", index, "\n")
+  movies <-
+    str_c(
+      "https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=film_noir&sort=user_rating,desc&start=",
+      index,
+      "&ref_=adv_nxt") %>%
+    read_html()
+  
+  movies %>%
+    html_elements(".lister-item-content") %>% # the cards
+    map_dfr(
+      ~ tibble(
+        # interate through the list and grab the elements:
+        title = .x %>%
+          html_element(".lister-item-header a") %>%
+          html_text2(),
+        year = .x %>%
+          html_element(".text-muted.unbold") %>%
+          html_text2(),
+        certificate = .x %>%
+          html_element(".certificate") %>%
+          html_text2(),
+        runtime = .x %>%
+          html_element(".runtime") %>%
+          html_text2(),
+        genre = .x %>%
+          html_element(".genre") %>%
+          html_text2(),
+        rating = .x %>%
+          html_element(".ratings-imdb-rating strong") %>%
+          html_text2(),
+        metascore = .x %>%
+          html_element(".ratings-metascore") %>%
+          html_text2(),
+        synopsis = .x %>%
+          html_element(".ratings-bar+ .text-muted") %>%
+          html_text2(),
+        director = .x %>%
+          html_element(".text-muted+ p a:nth-child(1)") %>%
+          html_text2(),
+        votes = .x %>%
+          html_element(".sort-num_votes-visible span:nth-child(2)") %>%
+          html_text2(),
+        gross = .x %>%
+          html_element(".ghost~ .text-muted+ span") %>%
+          html_text2(),
+        cast1 = .x %>%
+          html_element('a[href*="adv_li_st_0"]') %>%
+          html_text2(),
+        cast2 = .x %>%
+          html_element('a[href*="adv_li_st_1"]') %>%
+          html_text2(),
+        cast3 = .x %>%
+          html_element('a[href*="adv_li_st_2"]') %>%
+          html_text2(),
+        cast4 = .x %>%
+          html_element('a[href*="adv_li_st_3"]') %>%
+          html_text2()
+      )
+    )
+}
+
+film_noir_movies <- map_dfr(seq(1, 2, by = 50), get_imdb)
+
+#11. History
+get_imdb <- function(index) {
+  cat("Scraping index:", index, "\n")
+  movies <-
+    str_c(
+      "https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=history&sort=user_rating,desc&start=",
+      index,
+      "&ref_=adv_nxt") %>%
+    read_html()
+  
+  movies %>%
+    html_elements(".lister-item-content") %>% # the cards
+    map_dfr(
+      ~ tibble(
+        # interate through the list and grab the elements:
+        title = .x %>%
+          html_element(".lister-item-header a") %>%
+          html_text2(),
+        year = .x %>%
+          html_element(".text-muted.unbold") %>%
+          html_text2(),
+        certificate = .x %>%
+          html_element(".certificate") %>%
+          html_text2(),
+        runtime = .x %>%
+          html_element(".runtime") %>%
+          html_text2(),
+        genre = .x %>%
+          html_element(".genre") %>%
+          html_text2(),
+        rating = .x %>%
+          html_element(".ratings-imdb-rating strong") %>%
+          html_text2(),
+        metascore = .x %>%
+          html_element(".ratings-metascore") %>%
+          html_text2(),
+        synopsis = .x %>%
+          html_element(".ratings-bar+ .text-muted") %>%
+          html_text2(),
+        director = .x %>%
+          html_element(".text-muted+ p a:nth-child(1)") %>%
+          html_text2(),
+        votes = .x %>%
+          html_element(".sort-num_votes-visible span:nth-child(2)") %>%
+          html_text2(),
+        gross = .x %>%
+          html_element(".ghost~ .text-muted+ span") %>%
+          html_text2(),
+        cast1 = .x %>%
+          html_element('a[href*="adv_li_st_0"]') %>%
+          html_text2(),
+        cast2 = .x %>%
+          html_element('a[href*="adv_li_st_1"]') %>%
+          html_text2(),
+        cast3 = .x %>%
+          html_element('a[href*="adv_li_st_2"]') %>%
+          html_text2(),
+        cast4 = .x %>%
+          html_element('a[href*="adv_li_st_3"]') %>%
+          html_text2()
+      )
+    )
+}
+
+history_movies <- map_dfr(seq(1, 252, by = 50), get_imdb)
+
+#12. Horror
+get_imdb <- function(index) {
+  cat("Scraping index:", index, "\n")
+  movies <-
+    str_c(
+      "https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=horror&sort=user_rating,desc&start=",
+      index,
+      "&ref_=adv_nxt") %>%
+    read_html()
+  
+  movies %>%
+    html_elements(".lister-item-content") %>% # the cards
+    map_dfr(
+      ~ tibble(
+        # interate through the list and grab the elements:
+        title = .x %>%
+          html_element(".lister-item-header a") %>%
+          html_text2(),
+        year = .x %>%
+          html_element(".text-muted.unbold") %>%
+          html_text2(),
+        certificate = .x %>%
+          html_element(".certificate") %>%
+          html_text2(),
+        runtime = .x %>%
+          html_element(".runtime") %>%
+          html_text2(),
+        genre = .x %>%
+          html_element(".genre") %>%
+          html_text2(),
+        rating = .x %>%
+          html_element(".ratings-imdb-rating strong") %>%
+          html_text2(),
+        metascore = .x %>%
+          html_element(".ratings-metascore") %>%
+          html_text2(),
+        synopsis = .x %>%
+          html_element(".ratings-bar+ .text-muted") %>%
+          html_text2(),
+        director = .x %>%
+          html_element(".text-muted+ p a:nth-child(1)") %>%
+          html_text2(),
+        votes = .x %>%
+          html_element(".sort-num_votes-visible span:nth-child(2)") %>%
+          html_text2(),
+        gross = .x %>%
+          html_element(".ghost~ .text-muted+ span") %>%
+          html_text2(),
+        cast1 = .x %>%
+          html_element('a[href*="adv_li_st_0"]') %>%
+          html_text2(),
+        cast2 = .x %>%
+          html_element('a[href*="adv_li_st_1"]') %>%
+          html_text2(),
+        cast3 = .x %>%
+          html_element('a[href*="adv_li_st_2"]') %>%
+          html_text2(),
+        cast4 = .x %>%
+          html_element('a[href*="adv_li_st_3"]') %>%
+          html_text2()
+      )
+    )
+}
+
+horror_movies <- map_dfr(seq(1, 816, by = 50), get_imdb)
+
+#13. Music
+get_imdb <- function(index) {
+  cat("Scraping index:", index, "\n")
+  movies <-
+    str_c(
+      "https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=music&sort=user_rating,desc&start=",
+      index,
+      "&ref_=adv_nxt") %>%
+    read_html()
+  
+  movies %>%
+    html_elements(".lister-item-content") %>% # the cards
+    map_dfr(
+      ~ tibble(
+        # interate through the list and grab the elements:
+        title = .x %>%
+          html_element(".lister-item-header a") %>%
+          html_text2(),
+        year = .x %>%
+          html_element(".text-muted.unbold") %>%
+          html_text2(),
+        certificate = .x %>%
+          html_element(".certificate") %>%
+          html_text2(),
+        runtime = .x %>%
+          html_element(".runtime") %>%
+          html_text2(),
+        genre = .x %>%
+          html_element(".genre") %>%
+          html_text2(),
+        rating = .x %>%
+          html_element(".ratings-imdb-rating strong") %>%
+          html_text2(),
+        metascore = .x %>%
+          html_element(".ratings-metascore") %>%
+          html_text2(),
+        synopsis = .x %>%
+          html_element(".ratings-bar+ .text-muted") %>%
+          html_text2(),
+        director = .x %>%
+          html_element(".text-muted+ p a:nth-child(1)") %>%
+          html_text2(),
+        votes = .x %>%
+          html_element(".sort-num_votes-visible span:nth-child(2)") %>%
+          html_text2(),
+        gross = .x %>%
+          html_element(".ghost~ .text-muted+ span") %>%
+          html_text2(),
+        cast1 = .x %>%
+          html_element('a[href*="adv_li_st_0"]') %>%
+          html_text2(),
+        cast2 = .x %>%
+          html_element('a[href*="adv_li_st_1"]') %>%
+          html_text2(),
+        cast3 = .x %>%
+          html_element('a[href*="adv_li_st_2"]') %>%
+          html_text2(),
+        cast4 = .x %>%
+          html_element('a[href*="adv_li_st_3"]') %>%
+          html_text2()
+      )
+    )
+}
+
+music_movies <- map_dfr(seq(1, 194, by = 50), get_imdb)
+
+#14. Musical
+get_imdb <- function(index) {
+  cat("Scraping index:", index, "\n")
+  movies <-
+    str_c(
+      "https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=musical&sort=user_rating,desc&start=",
+      index,
+      "&ref_=adv_nxt") %>%
+    read_html()
+  
+  movies %>%
+    html_elements(".lister-item-content") %>% # the cards
+    map_dfr(
+      ~ tibble(
+        # interate through the list and grab the elements:
+        title = .x %>%
+          html_element(".lister-item-header a") %>%
+          html_text2(),
+        year = .x %>%
+          html_element(".text-muted.unbold") %>%
+          html_text2(),
+        certificate = .x %>%
+          html_element(".certificate") %>%
+          html_text2(),
+        runtime = .x %>%
+          html_element(".runtime") %>%
+          html_text2(),
+        genre = .x %>%
+          html_element(".genre") %>%
+          html_text2(),
+        rating = .x %>%
+          html_element(".ratings-imdb-rating strong") %>%
+          html_text2(),
+        metascore = .x %>%
+          html_element(".ratings-metascore") %>%
+          html_text2(),
+        synopsis = .x %>%
+          html_element(".ratings-bar+ .text-muted") %>%
+          html_text2(),
+        director = .x %>%
+          html_element(".text-muted+ p a:nth-child(1)") %>%
+          html_text2(),
+        votes = .x %>%
+          html_element(".sort-num_votes-visible span:nth-child(2)") %>%
+          html_text2(),
+        gross = .x %>%
+          html_element(".ghost~ .text-muted+ span") %>%
+          html_text2(),
+        cast1 = .x %>%
+          html_element('a[href*="adv_li_st_0"]') %>%
+          html_text2(),
+        cast2 = .x %>%
+          html_element('a[href*="adv_li_st_1"]') %>%
+          html_text2(),
+        cast3 = .x %>%
+          html_element('a[href*="adv_li_st_2"]') %>%
+          html_text2(),
+        cast4 = .x %>%
+          html_element('a[href*="adv_li_st_3"]') %>%
+          html_text2()
+      )
+    )
+}
+
+musical_movies <- map_dfr(seq(1, 180, by = 50), get_imdb)
+
+#15. Mystery
+
+get_imdb <- function(index) {
+  cat("Scraping index:", index, "\n")
+  movies <-
+    str_c(
+      "https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=mystery&sort=user_rating,desc&start=",
+      index,
+      "&ref_=adv_nxt") %>%
+    read_html()
+  
+  movies %>%
+    html_elements(".lister-item-content") %>% # the cards
+    map_dfr(
+      ~ tibble(
+        # interate through the list and grab the elements:
+        title = .x %>%
+          html_element(".lister-item-header a") %>%
+          html_text2(),
+        year = .x %>%
+          html_element(".text-muted.unbold") %>%
+          html_text2(),
+        certificate = .x %>%
+          html_element(".certificate") %>%
+          html_text2(),
+        runtime = .x %>%
+          html_element(".runtime") %>%
+          html_text2(),
+        genre = .x %>%
+          html_element(".genre") %>%
+          html_text2(),
+        rating = .x %>%
+          html_element(".ratings-imdb-rating strong") %>%
+          html_text2(),
+        metascore = .x %>%
+          html_element(".ratings-metascore") %>%
+          html_text2(),
+        synopsis = .x %>%
+          html_element(".ratings-bar+ .text-muted") %>%
+          html_text2(),
+        director = .x %>%
+          html_element(".text-muted+ p a:nth-child(1)") %>%
+          html_text2(),
+        votes = .x %>%
+          html_element(".sort-num_votes-visible span:nth-child(2)") %>%
+          html_text2(),
+        gross = .x %>%
+          html_element(".ghost~ .text-muted+ span") %>%
+          html_text2(),
+        cast1 = .x %>%
+          html_element('a[href*="adv_li_st_0"]') %>%
+          html_text2(),
+        cast2 = .x %>%
+          html_element('a[href*="adv_li_st_1"]') %>%
+          html_text2(),
+        cast3 = .x %>%
+          html_element('a[href*="adv_li_st_2"]') %>%
+          html_text2(),
+        cast4 = .x %>%
+          html_element('a[href*="adv_li_st_3"]') %>%
+          html_text2()
+      )
+    )
+}
+
+mystery_movies <- map_dfr(seq(1, 850, by = 50), get_imdb)
+
+#16. Romance
+get_imdb <- function(index) {
+  cat("Scraping index:", index, "\n")
+  movies <-
+    str_c(
+      "https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=romance&sort=user_rating,desc&start=",
+      index,
+      "&ref_=adv_nxt") %>%
+    read_html()
+  
+  movies %>%
+    html_elements(".lister-item-content") %>% # the cards
+    map_dfr(
+      ~ tibble(
+        # interate through the list and grab the elements:
+        title = .x %>%
+          html_element(".lister-item-header a") %>%
+          html_text2(),
+        year = .x %>%
+          html_element(".text-muted.unbold") %>%
+          html_text2(),
+        certificate = .x %>%
+          html_element(".certificate") %>%
+          html_text2(),
+        runtime = .x %>%
+          html_element(".runtime") %>%
+          html_text2(),
+        genre = .x %>%
+          html_element(".genre") %>%
+          html_text2(),
+        rating = .x %>%
+          html_element(".ratings-imdb-rating strong") %>%
+          html_text2(),
+        metascore = .x %>%
+          html_element(".ratings-metascore") %>%
+          html_text2(),
+        synopsis = .x %>%
+          html_element(".ratings-bar+ .text-muted") %>%
+          html_text2(),
+        director = .x %>%
+          html_element(".text-muted+ p a:nth-child(1)") %>%
+          html_text2(),
+        votes = .x %>%
+          html_element(".sort-num_votes-visible span:nth-child(2)") %>%
+          html_text2(),
+        gross = .x %>%
+          html_element(".ghost~ .text-muted+ span") %>%
+          html_text2(),
+        cast1 = .x %>%
+          html_element('a[href*="adv_li_st_0"]') %>%
+          html_text2(),
+        cast2 = .x %>%
+          html_element('a[href*="adv_li_st_1"]') %>%
+          html_text2(),
+        cast3 = .x %>%
+          html_element('a[href*="adv_li_st_2"]') %>%
+          html_text2(),
+        cast4 = .x %>%
+          html_element('a[href*="adv_li_st_3"]') %>%
+          html_text2()
+      )
+    )
+}
+
+romance_movies <- map_dfr(seq(1, 1239, by = 50), get_imdb)
+
+#17. SciFi
+get_imdb <- function(index) {
+  cat("Scraping index:", index, "\n")
+  movies <-
+    str_c(
+      "https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=sci_fi&sort=user_rating,desc&start=",
+      index,
+      "&ref_=adv_nxt") %>%
+    read_html()
+  
+  movies %>%
+    html_elements(".lister-item-content") %>% # the cards
+    map_dfr(
+      ~ tibble(
+        # interate through the list and grab the elements:
+        title = .x %>%
+          html_element(".lister-item-header a") %>%
+          html_text2(),
+        year = .x %>%
+          html_element(".text-muted.unbold") %>%
+          html_text2(),
+        certificate = .x %>%
+          html_element(".certificate") %>%
+          html_text2(),
+        runtime = .x %>%
+          html_element(".runtime") %>%
+          html_text2(),
+        genre = .x %>%
+          html_element(".genre") %>%
+          html_text2(),
+        rating = .x %>%
+          html_element(".ratings-imdb-rating strong") %>%
+          html_text2(),
+        metascore = .x %>%
+          html_element(".ratings-metascore") %>%
+          html_text2(),
+        synopsis = .x %>%
+          html_element(".ratings-bar+ .text-muted") %>%
+          html_text2(),
+        director = .x %>%
+          html_element(".text-muted+ p a:nth-child(1)") %>%
+          html_text2(),
+        votes = .x %>%
+          html_element(".sort-num_votes-visible span:nth-child(2)") %>%
+          html_text2(),
+        gross = .x %>%
+          html_element(".ghost~ .text-muted+ span") %>%
+          html_text2(),
+        cast1 = .x %>%
+          html_element('a[href*="adv_li_st_0"]') %>%
+          html_text2(),
+        cast2 = .x %>%
+          html_element('a[href*="adv_li_st_1"]') %>%
+          html_text2(),
+        cast3 = .x %>%
+          html_element('a[href*="adv_li_st_2"]') %>%
+          html_text2(),
+        cast4 = .x %>%
+          html_element('a[href*="adv_li_st_3"]') %>%
+          html_text2()
+      )
+    )
+}
+
+scifi_movies <- map_dfr(seq(1, 864, by = 50), get_imdb)
+
+#18. Sport
+get_imdb <- function(index) {
+  cat("Scraping index:", index, "\n")
+  movies <-
+    str_c(
+      "https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=sport&sort=user_rating,desc&start=",
+      index,
+      "&ref_=adv_nxt") %>%
+    read_html()
+  
+  movies %>%
+    html_elements(".lister-item-content") %>% # the cards
+    map_dfr(
+      ~ tibble(
+        # interate through the list and grab the elements:
+        title = .x %>%
+          html_element(".lister-item-header a") %>%
+          html_text2(),
+        year = .x %>%
+          html_element(".text-muted.unbold") %>%
+          html_text2(),
+        certificate = .x %>%
+          html_element(".certificate") %>%
+          html_text2(),
+        runtime = .x %>%
+          html_element(".runtime") %>%
+          html_text2(),
+        genre = .x %>%
+          html_element(".genre") %>%
+          html_text2(),
+        rating = .x %>%
+          html_element(".ratings-imdb-rating strong") %>%
+          html_text2(),
+        metascore = .x %>%
+          html_element(".ratings-metascore") %>%
+          html_text2(),
+        synopsis = .x %>%
+          html_element(".ratings-bar+ .text-muted") %>%
+          html_text2(),
+        director = .x %>%
+          html_element(".text-muted+ p a:nth-child(1)") %>%
+          html_text2(),
+        votes = .x %>%
+          html_element(".sort-num_votes-visible span:nth-child(2)") %>%
+          html_text2(),
+        gross = .x %>%
+          html_element(".ghost~ .text-muted+ span") %>%
+          html_text2(),
+        cast1 = .x %>%
+          html_element('a[href*="adv_li_st_0"]') %>%
+          html_text2(),
+        cast2 = .x %>%
+          html_element('a[href*="adv_li_st_1"]') %>%
+          html_text2(),
+        cast3 = .x %>%
+          html_element('a[href*="adv_li_st_2"]') %>%
+          html_text2(),
+        cast4 = .x %>%
+          html_element('a[href*="adv_li_st_3"]') %>%
+          html_text2()
+      )
+    )
+}
+
+sport_movies <- map_dfr(seq(1, 196, by = 50), get_imdb)
+
+#19. Thriller
+get_imdb <- function(index) {
+  cat("Scraping index:", index, "\n")
+  movies <-
+    str_c(
+      "https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=thriller&sort=user_rating,desc&start=",
+      index,
+      "&ref_=adv_nxt") %>%
+    read_html()
+  
+  movies %>%
+    html_elements(".lister-item-content") %>% # the cards
+    map_dfr(
+      ~ tibble(
+        # interate through the list and grab the elements:
+        title = .x %>%
+          html_element(".lister-item-header a") %>%
+          html_text2(),
+        year = .x %>%
+          html_element(".text-muted.unbold") %>%
+          html_text2(),
+        certificate = .x %>%
+          html_element(".certificate") %>%
+          html_text2(),
+        runtime = .x %>%
+          html_element(".runtime") %>%
+          html_text2(),
+        genre = .x %>%
+          html_element(".genre") %>%
+          html_text2(),
+        rating = .x %>%
+          html_element(".ratings-imdb-rating strong") %>%
+          html_text2(),
+        metascore = .x %>%
+          html_element(".ratings-metascore") %>%
+          html_text2(),
+        synopsis = .x %>%
+          html_element(".ratings-bar+ .text-muted") %>%
+          html_text2(),
+        director = .x %>%
+          html_element(".text-muted+ p a:nth-child(1)") %>%
+          html_text2(),
+        votes = .x %>%
+          html_element(".sort-num_votes-visible span:nth-child(2)") %>%
+          html_text2(),
+        gross = .x %>%
+          html_element(".ghost~ .text-muted+ span") %>%
+          html_text2(),
+        cast1 = .x %>%
+          html_element('a[href*="adv_li_st_0"]') %>%
+          html_text2(),
+        cast2 = .x %>%
+          html_element('a[href*="adv_li_st_1"]') %>%
+          html_text2(),
+        cast3 = .x %>%
+          html_element('a[href*="adv_li_st_2"]') %>%
+          html_text2(),
+        cast4 = .x %>%
+          html_element('a[href*="adv_li_st_3"]') %>%
+          html_text2()
+      )
+    )
+}
+
+thriller_movies <- map_dfr(seq(1, 2070, by = 50), get_imdb)
+
+#20. War
+get_imdb <- function(index) {
+  cat("Scraping index:", index, "\n")
+  movies <-
+    str_c(
+      "https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=war&sort=user_rating,desc&start=",
+      index,
+      "&ref_=adv_nxt") %>%
+    read_html()
+  
+  movies %>%
+    html_elements(".lister-item-content") %>% # the cards
+    map_dfr(
+      ~ tibble(
+        # interate through the list and grab the elements:
+        title = .x %>%
+          html_element(".lister-item-header a") %>%
+          html_text2(),
+        year = .x %>%
+          html_element(".text-muted.unbold") %>%
+          html_text2(),
+        certificate = .x %>%
+          html_element(".certificate") %>%
+          html_text2(),
+        runtime = .x %>%
+          html_element(".runtime") %>%
+          html_text2(),
+        genre = .x %>%
+          html_element(".genre") %>%
+          html_text2(),
+        rating = .x %>%
+          html_element(".ratings-imdb-rating strong") %>%
+          html_text2(),
+        metascore = .x %>%
+          html_element(".ratings-metascore") %>%
+          html_text2(),
+        synopsis = .x %>%
+          html_element(".ratings-bar+ .text-muted") %>%
+          html_text2(),
+        director = .x %>%
+          html_element(".text-muted+ p a:nth-child(1)") %>%
+          html_text2(),
+        votes = .x %>%
+          html_element(".sort-num_votes-visible span:nth-child(2)") %>%
+          html_text2(),
+        gross = .x %>%
+          html_element(".ghost~ .text-muted+ span") %>%
+          html_text2(),
+        cast1 = .x %>%
+          html_element('a[href*="adv_li_st_0"]') %>%
+          html_text2(),
+        cast2 = .x %>%
+          html_element('a[href*="adv_li_st_1"]') %>%
+          html_text2(),
+        cast3 = .x %>%
+          html_element('a[href*="adv_li_st_2"]') %>%
+          html_text2(),
+        cast4 = .x %>%
+          html_element('a[href*="adv_li_st_3"]') %>%
+          html_text2()
+      )
+    )
+}
+
+war_movies <- map_dfr(seq(1, 274, by = 50), get_imdb)
+
+#21. Western
+get_imdb <- function(index) {
+  cat("Scraping index:", index, "\n")
+  movies <-
+    str_c(
+      "https://www.imdb.com/search/title/?title_type=feature&num_votes=25000,&genres=western&sort=user_rating,desc&start=",
+      index,
+      "&ref_=adv_nxt") %>%
+    read_html()
+  
+  movies %>%
+    html_elements(".lister-item-content") %>% # the cards
+    map_dfr(
+      ~ tibble(
+        # interate through the list and grab the elements:
+        title = .x %>%
+          html_element(".lister-item-header a") %>%
+          html_text2(),
+        year = .x %>%
+          html_element(".text-muted.unbold") %>%
+          html_text2(),
+        certificate = .x %>%
+          html_element(".certificate") %>%
+          html_text2(),
+        runtime = .x %>%
+          html_element(".runtime") %>%
+          html_text2(),
+        genre = .x %>%
+          html_element(".genre") %>%
+          html_text2(),
+        rating = .x %>%
+          html_element(".ratings-imdb-rating strong") %>%
+          html_text2(),
+        metascore = .x %>%
+          html_element(".ratings-metascore") %>%
+          html_text2(),
+        synopsis = .x %>%
+          html_element(".ratings-bar+ .text-muted") %>%
+          html_text2(),
+        director = .x %>%
+          html_element(".text-muted+ p a:nth-child(1)") %>%
+          html_text2(),
+        votes = .x %>%
+          html_element(".sort-num_votes-visible span:nth-child(2)") %>%
+          html_text2(),
+        gross = .x %>%
+          html_element(".ghost~ .text-muted+ span") %>%
+          html_text2(),
+        cast1 = .x %>%
+          html_element('a[href*="adv_li_st_0"]') %>%
+          html_text2(),
+        cast2 = .x %>%
+          html_element('a[href*="adv_li_st_1"]') %>%
+          html_text2(),
+        cast3 = .x %>%
+          html_element('a[href*="adv_li_st_2"]') %>%
+          html_text2(),
+        cast4 = .x %>%
+          html_element('a[href*="adv_li_st_3"]') %>%
+          html_text2()
+      )
+    )
+}
+
+western_movies <- map_dfr(seq(1, 112, by = 50), get_imdb)
+
+# Movies with at least 10,000 votes (All categories)
+get_imdb <- function(index) {
+  cat("Scraping index:", index, "\n")
+  movies <-
+    str_c(
+      "https://www.imdb.com/search/title/?title_type=feature&num_votes=10000,&sort=user_rating,desc&start=",
+      index,
+      "&ref_=adv_nxt") %>%
+    read_html()
+  
+  movies %>%
+    html_elements(".lister-item-content") %>% # the cards
+    map_dfr(
+      ~ tibble(
+        # interate through the list and grab the elements:
+        title = .x %>%
+          html_element(".lister-item-header a") %>%
+          html_text2(),
+        year = .x %>%
+          html_element(".text-muted.unbold") %>%
+          html_text2(),
+        certificate = .x %>%
+          html_element(".certificate") %>%
+          html_text2(),
+        runtime = .x %>%
+          html_element(".runtime") %>%
+          html_text2(),
+        genre = .x %>%
+          html_element(".genre") %>%
+          html_text2(),
+        rating = .x %>%
+          html_element(".ratings-imdb-rating strong") %>%
+          html_text2(),
+        metascore = .x %>%
+          html_element(".ratings-metascore") %>%
+          html_text2(),
+        synopsis = .x %>%
+          html_element(".ratings-bar+ .text-muted") %>%
+          html_text2(),
+        director = .x %>%
+          html_element(".text-muted+ p a:nth-child(1)") %>%
+          html_text2(),
+        votes = .x %>%
+          html_element(".sort-num_votes-visible span:nth-child(2)") %>%
+          html_text2(),
+        gross = .x %>%
+          html_element(".ghost~ .text-muted+ span") %>%
+          html_text2(),
+        cast1 = .x %>%
+          html_element('a[href*="adv_li_st_0"]') %>%
+          html_text2(),
+        cast2 = .x %>%
+          html_element('a[href*="adv_li_st_1"]') %>%
+          html_text2(),
+        cast3 = .x %>%
+          html_element('a[href*="adv_li_st_2"]') %>%
+          html_text2(),
+        cast4 = .x %>%
+          html_element('a[href*="adv_li_st_3"]') %>%
+          html_text2()
+      )
+    )
+}
+
+ten_thousand_votes_movies <- map_dfr(seq(1, 10148, by = 50), get_imdb)
+
+#Rbind data frames
+movies<-rbind(action_movies, adventure_movies, animation_movies, biography_movies,
+              comedy_movies, crime_movies, drama_movies, family_movies, fantasy_movies,
+              film_noir_movies, history_movies, horror_movies, music_movies, musical_movies,
+              mystery_movies, romance_movies, scifi_movies, sport_movies, ten_thousand_votes_movies,
+              thriller_movies, war_movies, western_movies, stringsAsFactors=FALSE)
+
+
+
+movies$year <- gsub('[()]','',movies$year)
+movies<-distinct(movies, title, director, .keep_all= TRUE)
+movies$metascore<-gsub('Metascore', "", movies$metascore)
+view(movies)
+fwrite(movies, "movies.csv")
+
+
+
