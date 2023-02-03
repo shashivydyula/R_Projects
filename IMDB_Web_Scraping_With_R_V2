@@ -1,3 +1,8 @@
+#libraries
+library('rvest')
+library('tidyverse')
+library('dplyr)
+
 #1. Action movies
 get_imdb <- function(index) {
   cat("Scraping index:", index, "\n")
