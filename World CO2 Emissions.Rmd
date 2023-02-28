@@ -1,0 +1,1556 @@
+---
+title: "World CO2 Emissions"
+author: "Dr. Shashikanth Vydyula"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    df_print: paged
+    toc: true
+    number_sections: false
+    highlight: pygments
+    code_folding: hide
+    
+---
+
+```{r steup, include=FALSE}
+knitr::opts_chunk$set(
+  comment = NA,
+  warning= FALSE,
+  message = FALSE,
+  fig.align='center'
+   
+    
+)
+```
+
+***
+<center>![](https://raw.githubusercontent.com/shashivydyula/images-repo/main/CO2%20Emissions.jpg)</center>
+
+***
+
+
+```{r}
+library('tidyverse') # essential R packages for data science
+library('data.table')
+library("plotly")
+library("highcharter")
+library('dplyr') # data manipulation
+library('readr') # input/output
+library('skimr') # overview
+library('tibble') # data wrangling
+library('tidyr') # data wrangling
+library('purrr') # data wrangling
+library('stringr') # string manipulation
+library('forcats') # factor manipulation
+library('janitor') # data cleaning
+library('Tmisc') # data manipulation
+library('class') # functions for classification
+library('tm')
+```
+
+***
+
+
+```{r}
+co2_emissions<-fread("C:/Shashi/Data & Dashboards/Datasets/GCB2022v27_MtCO2_flat.csv")
+
+head(co2_emissions)
+
+```
+
+***
+
+<center>
+<h1>Data Manipulation</h1>
+</center>
+<br>
+
+<h5><strong>Most of the data is without any errors. I made the following changes:<br><br>
+1. Replaced the missing emission values (NA) with zero.<br><br>
+2. Renamed the country column to 'name' so that it will be easy to join with worldgeojson data.<br><br>
+3. Corrected the iso and per capita column names.<br><br>
+4. Made all column names to lower case.<br><br>
+5. Finally, corrected some country names.<br><br>
+</h5></strong>
+
+
+```{r}
+co2_emissions[is.na(co2_emissions)]<-0
+colnames(co2_emissions)[1]<-"name"
+colnames(co2_emissions)[2]<-"iso"
+colnames(co2_emissions) <- tolower(colnames(co2_emissions))
+colnames(co2_emissions)[11]<-"per_capita"
+
+
+co2_emissions$name[co2_emissions$name=="Tanzania"]<-"United Republic of Tanzania"
+co2_emissions$name[co2_emissions$name=="USA"]<-"United States of America"
+co2_emissions$name[co2_emissions$name=="Congo"]<-"Republic of Congo"
+co2_emissions$name[co2_emissions$name=="Côte d'Ivoire"]<-"Ivory Coast"
+
+```
+
+***
+<center>
+<h1>Total Emissions</h1>
+</center>
+<br>
+
+<center>
+```{r}
+emissions_total<-co2_emissions %>% 
+  select(name, total)
+
+emissions_total<-emissions_total %>% 
+  group_by(name) %>% 
+  summarise(total_emissions=round(sum(total))) %>% 
+  arrange(desc(total_emissions))
+
+
+
+top_10_emissions <-emissions_total %>% 
+  filter(name!="Global")
+
+top_10_emissions<-top_10_emissions %>% 
+  slice(1:10)
+  
+emissions_total<-emissions_total %>% 
+  filter(name!="Global")
+
+highchart() %>% 
+  hc_chart(type="column", options3d=list(enabled=TRUE, alpha=15, beta=25)) %>% 
+  hc_xAxis(categories=top_10_emissions$name) %>% 
+  hc_add_series(data=top_10_emissions$total_emissions, name="Total Emissions") %>% 
+  hc_add_theme(hc_theme_ffx()) %>% 
+  hc_title(text="Top 10 Countries By Total Emissions")
+
+```
+</center>
+
+
+***
+
+<center>
+```{r}
+highchart() %>%
+  hc_add_series_map(worldgeojson, emissions_total, value = "total_emissions", 
+                                 joinBy = "name", name = "Total Emssions")  %>% 
+  hc_colorAxis(stops = color_stops()) %>% 
+  hc_title(text = "World Total Emissions") %>% 
+  hc_subtitle(text = "Total Emissions")
+```
+</center>
+
+<div style="color:white;
+           display:fill;
+           border-radius:10px;
+           background-color:#1e2761;
+           font-size:110%;
+           font-family:Courier New;
+           letter-spacing:0.5px">
+<p style="padding: 10px;
+              color:white;
+              text-align:center;
+              font-weight:bold;">
+USA has highest total emissions.
+</p>
+</div> 
+
+***
+
+<center>
+  <h1>World Map - Percentage of All emissions</h1>
+</center>
+
+<center>
+```{r}
+world_all_emissions_percent<-co2_emissions %>% 
+  select(name, total, coal, oil, gas, cement, flaring, other)
+
+world_all_emissions_percent<- world_all_emissions_percent %>% 
+  group_by(name) %>% 
+  filter(name!="Global") %>% 
+  summarise(across(everything(), sum, na.rm = TRUE), .groups = 'drop')
+
+
+total_emissions <- sum(world_all_emissions_percent$total)
+
+world_all_emissions_percent$total_percent<-round(world_all_emissions_percent$total / total_emissions * 100,2)
+
+world_all_emissions_percent<-world_all_emissions_percent %>% 
+  select(name, total, coal, oil, gas, cement, flaring, other,total_percent) %>% 
+  group_by(name) %>% 
+  mutate(coal_percent=round(coal*100/sum(total), digits=2)) %>% 
+  mutate(oil_percent=round(oil*100/sum(total), digits=2)) %>% 
+  mutate(gas_percent=round(gas*100/sum(total), digits=2)) %>% 
+  mutate(cement_percent=round(cement*100/sum(total), digits=2)) %>% 
+  mutate(flaring_percent=round(flaring*100/sum(total), digits=2)) %>% 
+  mutate(other_percent=round(other*100/sum(total), digits=2))
+
+view(world_all_emissions_percent)
+
+world_all_emissions_percent<-world_all_emissions_percent %>% 
+  select(name, total_percent,coal_percent, oil_percent, gas_percent, cement_percent, flaring_percent, other_percent)
+
+world_all_emissions_percent<-world_all_emissions_percent %>% 
+  mutate(percentages = paste0("Total: ", total_percent, "%", "<br>",
+                              "Coal: ", round(coal_percent, 2), "%", "<br>",
+                              "Oil: ", round(oil_percent, 2), "%", "<br>",
+                              "Gas: ", round(gas_percent, 2), "%", "<br>",
+                              "Cement: ", round(cement_percent, 2), "%", "<br>",
+                              "Flaring: ", round(flaring_percent, 2), "%", "<br>",
+                              "Other: ", round(other_percent, 2), "%"))
+
+
+highchart() %>%
+  hc_add_series_map(worldgeojson, df = world_all_emissions_percent, value = "total_percent", 
+                    name="All Emissions Percentage", joinBy = "name") %>%
+  hc_colorAxis(dataClasses = list(
+    list(from = 0, to = 0, color = "#AAFF00"),
+    list(from = 0.01, to = 0.09, color = "#50C878"),
+    list(from = 0.1, to = 0.99, color = "#74c476"),
+    list(from = 1, to = 4, color = "#12AD2B"),
+    list(from = 4, to = 5, color = "#088F8F"),
+    list(from = 5, to = 10, color = "#1e2761"),
+    list(from = 10, to = 15, color = "#fdae6b"),
+    list(from = 15, to = 20, color = "#7a2048"),
+    list(from = 20, to = 25, color = "#FF0000")
+  )) %>%
+  hc_title(text = "Percentage Of All Emissions of All Countries since 1750") %>%
+  hc_tooltip(
+    useHTML = TRUE,
+    formatter = JS(
+      "function(){",
+      "  return '<b><u>'+this.point.name+'</u></b><br>'",
+      "         +'<b>All Emissions:</b> '+this.point.value.toFixed(2)+'%<br>'",
+      "         +'<span style=\"color:#A020F0\"><b>Coal Emissions:</b> '+this.point.coal_percent.toFixed(2)+'%</span><br>'",
+      "         +'<span style=\"color:#A020F0\"><b>Oil Emissions:</b> '+this.point.oil_percent.toFixed(2)+'%</span><br>'",
+      "         +'<span style=\"color:#A020F0\"><b>Gas Emissions:</b> '+this.point.gas_percent.toFixed(2)+'%</span><br>'",
+      "         +'<span style=\"color:#A020F0\"><b>Cement Emissions:</b> '+this.point.cement_percent.toFixed(2)+'%</span><br>'",
+      "         +'<span style=\"color:#A020F0\"><b>Flaring Emissions:</b> '+this.point.flaring_percent.toFixed(2)+'%</span><br>'",
+      "         +'<span style=\"color:#A020F0\"><b>Other Emissions:</b> '+this.point.other_percent.toFixed(2)+'%</span>';",
+      "}"
+    )
+  )
+
+
+```
+</center>
+
+<div style="color:white;
+           display:fill;
+           border-radius:10px;
+           background-color:#1e2761;
+           font-size:110%;
+           font-family:Courier New;
+           letter-spacing:0.5px">
+<p style="padding: 10px;
+              color:white;
+              text-align:center;
+              font-weight:bold;">
+USA and China have highest CO2 emissions percentage with 24.29% and 14.36% respectively.
+</p>
+</div> 
+
+***
+
+<center>
+  <h1> Bubble charts - Continent Wise</h1>
+</center>
+
+<center>
+```{r, fig.height=9, fig.width=8}
+bubble_emissions<-co2_emissions %>% 
+  select(name, total, coal, oil, gas, cement, flaring, other)
+
+bubble_emissions<- bubble_emissions %>% 
+  group_by(name) %>% 
+  filter(name!="Global") %>% 
+  summarise(across(everything(), sum, na.rm = TRUE), .groups = 'drop')
+
+view(bubble_emissions)
+
+total_emissions <- sum(bubble_emissions$total)
+
+
+bubble_emissions$percent_total <- round(bubble_emissions$total / total_emissions * 100,2)
+
+
+
+highchart() %>% 
+  hc_chart(type = "packedbubble", height = "100%") %>% 
+  hc_title(text = "Carbon emissions - Continet Bubble", align = "left") %>% 
+  hc_tooltip(useHTML = TRUE, pointFormat = '<b>{point.name}:</b> {point.value}m CO<sub>2</sub>') %>% 
+  hc_plotOptions(
+    packedbubble = list(
+      minSize = "20%",
+      maxSize = "100%",
+      zMin = 0,
+      zMax = 1000,
+      layoutAlgorithm = list(
+        gravitationalConstant = 0.05,
+        splitSeries = TRUE,
+        seriesInteraction = FALSE,
+        dragBetweenSeries = TRUE,
+        parentNodeLimit = TRUE
+      ),
+      dataLabels = list(
+        enabled = TRUE,
+        format = "{point.name}",
+        filter = list(
+          property = "y",
+          operator = ">",
+          value = 250
+        ),
+        style = list(
+          color = "black",
+          textOutline = "none",
+          fontWeight = "normal"
+        )
+      )
+    )
+  ) %>% 
+  hc_add_series(
+    name = "South America",
+    data = list(
+      list(name = "El Salvador", value = 239.95),
+      list(name = "Bolivia", value = 577.56),
+      list(name = "Greenland", value = 33.54),
+      list(name = "Grenada", value = 8.57),
+      list(name = "Guadeloupe", value = 86.18),
+      list(name = "Uruguay", value = 378.34),
+      list(name = "Bolivia", value = 577.56),
+      list(name = "Trinidad and Tobago", value = 1608.57),
+      list(name = "Turks and Caicos Islands", value = 6.43),
+      list(name = "Ecuador", value = 1249.64),
+      list(name = "Chile", value = 2996.75),
+      list(name = "Peru", value = 1995.77),
+      list(name = "Suriname", value = 117.28),
+      list(name = "Cuba", value = 1636.84),
+      list(name = "Paraguay", value = 186.63),
+      list(name = "Guyana", value = 104.90),
+      list(name = "Colombia", value = 3503.54),
+      list(name = "French Guiana", value = 28.18),
+      list(name = "Brazil", value = 16672.43),
+      list(name = "Argentina", value = 8636.50),
+      list(name = "Venezuela", value = 7819.96))) %>%
+  hc_add_series(
+    name = "Europe",
+    data = list(
+      list(name = "Germany", value = 767.1),
+      list(name = "Czech Republic", value = 12076.99),
+      list(name = "Faeroe Islands", value = 31.34),
+      list(name = "Moldova", value = 1341.73),
+      list(name = "Albania", value = 293.83),
+      list(name = "Iceland", value = 155.31),
+      list(name = "Andorra", value = 15.48),
+      list(name = "Croatia", value = 1118.09),
+      list(name = "Belgium", value = 12644.15),
+      list(name = "Bosnia and Herzegovina", value = 964.36),
+      list(name = "Netherlands", value = 11879.45),
+      list(name = "Spain", value = 15100.20),
+      list(name = "Liechtenstein", value = 6.26),
+      list(name = "Ukraine", value = 30784.73),
+      list(name = "Poland", value = 28196.09),
+      list(name = "France", value = 39105.76),
+      list(name = "Romania", value = 8647.11),
+      list(name = "Russia", value = 117547.63),
+      list(name = "United Kingdom", value = 78508.72),
+      list(name = "Turkey", value = 11340.78),
+      list(name = "Italy", value = 25065.17),
+      list(name = "Greece", value = 4132.68),
+      list(name = "Austria", value = 5571.69),
+      list(name = "Belarus", value = 5007.97),
+      list(name = "Serbia", value = 2804.10),
+      list(name = "Finland", value = 3226.02),
+      list(name = "Bulgaria", value = 3873.28),
+      list(name = "Portugal", value = 2656.06),
+      list(name = "Norway", value = 2672.22),
+      list(name = "Sweden", value = 5026.54),
+      list(name = "Hungary", value = 5058.66),
+      list(name = "Switzerland", value = 3059.69),
+      list(name = "Denmark", value = 4115.08),
+      list(name = "Slovakia", value = 3934.30),
+      list(name = "Ireland", value = 2263.34),
+      list(name = "Croatia", value = 1118.09),
+      list(name = "Estonia", value = 1640.45),
+      list(name = "Slovenia", value = 864.57),
+      list(name = "Lithuania", value = 1575.83),
+      list(name = "Luxembourg", value = 761.95),
+      list(name = "Macedonia", value = 642.47),
+      list(name = "Montenegro", value = 105.34),
+      list(name = "North Macedonia", value = 642.47),
+      list(name = 'Moldova', value= 1341.73),
+      list(name = 'Latvia', value= 960.50),
+      list(name = 'Malta', value= 105.58),
+      list(name ='Cyprus', value= 301.47))) %>% 
+    hc_add_series(
+    name = "North America",
+    data = list(
+      list(name = "Costa Rica", value = 261.26),
+      list(name = "Bonaire, Saint Eustatius and Saba", value = 8.62),
+      list(name = "New Zealand", value = 1916.90),
+      list(name = "Antigua and Barbuda", value = 22.00),
+      list(name = "Aruba", value = 76.86),
+      list(name = "Bahamas", value = 171.63),
+      list(name = "Barbados", value = 56.10),
+      list(name = "British Virgin Islands", value = 5.67),
+      list(name = "Anguilla", value = 3.58),
+      list(name = "Honduras", value = 272.03),
+      list(name = "Jamaica", value = 459.88),
+      list(name = "Belize", value = 19.83),
+      list(name = "Martinique", value = 90.48),
+      list(name = "Mexico", value = 20587.50),
+      list(name = "Montserrat", value = 1.60),
+      list(name = "Bermuda", value = 29.50),
+      list(name = "Bonaire, Saint Eustatius and Saba", value = 8.62),
+      list(name = "Panama", value = 324.12),
+      list(name = "Guatemala", value = 462.04),
+      list(name = "Haiti", value = 78.54),
+      list(name = "Puerto Rico", value = 0.20),
+      list(name = "Saint Lucia", value = 14.87),
+      list(name = "Sint Maarten (Dutch part)", value = 70.28),
+      list(name = "Saint Vincent and the Grenadines", value = 7.15),
+      list(name = "Nicaragua", value = 181.36),
+      list(name = "Dominican Republic", value = 776.14),
+      list(name = "Dominica", value = 4.98),
+      list(name = "Saint Kitts and Nevis", value = 6.59),
+      list(name = "Cuba", value = 1636.84),
+      list(name = "USA", value = 421906.85),
+      list(name = "Canada", value = 34115.39),
+      list(name = "Mexico", value = 20587.50))) %>% 
+  hc_add_series(
+    name = "Asia",
+    data = list(
+      list(name = "HongKong", value = 1652.05),
+      list(name = "Afghanistan", value = 217.99),
+      list(name = "Iran", value = 19546.58),
+      list(name = "Laos", value = 174.80),
+      list(name = "Macau", value = 57.86),
+      list(name = "North Korea", value = 5172.17),
+      list(name = "Armenia", value = 383.29),
+      list(name = "Azerbaijan", value = 2530.48),
+      list(name = "Bahrain", value = 972.27),
+      list(name = "Bangladesh", value = 1650.25),
+      list(name = "Bhutan", value = 19.71),
+      list(name = "Brunei Darussalam", value = 371.26),
+      list(name = "Cambodia", value = 185.27),
+      list(name = "China", value = 249352.81),
+      list(name = "Cyprus", value = 301.47),
+      list(name = "Georgia", value = 671.61),
+      list(name = "India", value = 57105.38),
+      list(name = "Indonesia", value = 14933.86),
+      list(name = "Iraq", value = 4777.05),
+      list(name = "Israel", value = 2428.60),
+      list(name = "Japan", value = 66711.08),
+      list(name = "Jordan", value = 726.42),
+      list(name = "Kazakhstan", value = 14219.75),
+      list(name = "Kuwait", value = 3010.45),
+      list(name = "Kyrgyzstan", value = 848.59),
+      list(name = "Ryukyu Islands", value = 20.89),
+      list(name = "Syria", value = 1888.23),
+      list(name = "Taiwan", value = 9319.12),
+      list(name = "South Korea", value = 18927.93),
+      list(name = "Lebanon", value = 756.11),
+      list(name = "Malaysia", value = 6301.48),
+      list(name = "Maldives", value = 27.45),
+      list(name = "Mongolia", value = 753.72),
+      list(name = "Myanmar", value = 642.66),
+      list(name = "Nepal", value = 174.73),
+      list(name = "Oman", value = 1404.16),
+      list(name = "Pakistan", value = 5273.93),
+      list(name = "Philippines", value = 3535.60),
+      list(name = "Qatar", value = 2155.05),
+      list(name = "Saudi Arabia", value = 16705.82),
+      list(name = "Singapore", value = 2101.49),
+      list(name = "Sri Lanka", value = 521.04),
+      list(name = "Tajikistan", value = 487.57),
+      list(name = "Thailand", value = 7783.36),
+      list(name = "Timor-Leste", value = 9.27),
+      list(name = "Turkey", value = 11340.78),
+      list(name = "Turkmenistan", value = 2501.11),
+      list(name = "UAE", value = 5101.47),
+      list(name = "Uzbekistan", value = 6346.99),
+      list(name = "Viet Nam", value = 4623.86),
+      list(name = "Yemen", value = 651.59))) %>% 
+  hc_add_series(
+    name = "Oceania",
+    data = list(
+      list(name = "Niue", value = 0.30),
+      list(name = "Samoa", value = 7.14),
+      list(name = "Tonga", value = 4.56),
+      list(name = "Solomon Islands", value = 10.75),
+      list(name = "Australia", value = 18968.83),
+      list(name = "Pacific Islands (Palau)", value = 4.42),
+      list(name = "Christmas Island", value = 1.33),
+      list(name = "Cook Islands", value = 2.43),
+      list(name = "Micronesia (Federated States of)", value = 4.44),
+      list(name = "Fiji", value = 49.74),
+      list(name = "Vanuatu", value = 4.89),
+      list(name = "Wallis and Futuna Islands", value = 0.77),
+      list(name = "Tuvalu", value = 0.28),
+      list(name = "Kiribati", value = 2.16),
+      list(name = "Marshall Islands", value = 3.57),
+      list(name = "French Polynesia", value = 30.71),
+      list(name = "New Zealand", value = 1916.90),
+      list(name = "Papua New Guinea", value = 183.20))) %>%
+  hc_add_series(
+    name = "Africa",
+    data = list(
+      list(name = "Senegal", value = 260.69),
+      list(name = "Senegal", value = 260.69),
+      list(name = "Benin", value = 119.03),
+      list(name = "Cape Verde", value = 15.29),
+      list(name = "Somalia", value = 33.48),
+      list(name = "Seychelles", value = 14.10),
+      list(name = "Sierra Leone", value = 38.60),
+      list(name = "Djibouti", value = 19.24),
+      list(name = "Equatorial Guinea", value = 147.28),
+      list(name = "Guinea-Bissau", value = 10.49),
+      list(name = "Guinea", value = 92.92),
+      list(name = "Botswana", value = 156.47),
+      list(name = "Burkina Faso", value = 74.56),
+      list(name = "Eritrea", value = 18.82),
+      list(name = "Central African Republic", value = 10.81),
+      list(name = "Cameroon", value = 242.58),
+      list(name = "Burundi", value = 13.82),
+      list(name = "Zimbabwe", value = 798.21),
+      list(name = "Republic of Congo", value = 110.43),
+      list(name = "Réunion", value = 127.90),
+      list(name = "Swaziland", value = 41.98),
+      list(name = "Democratic Republic of the Congo", value = 195.40),
+      list(name = "Chad", value = 36.60),
+      list(name = "Ghana", value = 398.07),
+      list(name = "Kenya", value = 491.16),
+      list(name = "Liberia", value = 53.78),
+      list(name = "Mauritania", value = 80.75),
+      list(name = "Lesotho", value = 66.18),
+      list(name = "Mauritius", value = 120.60),
+      list(name = "Madagascar", value = 101.22),
+      list(name = "Mayotte", value = 6.77),
+      list(name = "Sudan", value = 40.67),
+      list(name = "Togo", value = 68.29),
+      list(name = "Uganda", value = 112.41),
+      list(name = "Tunisia", value = 938.31),
+      list(name = "Angola", value = 657.11),
+      list(name = "Libya", value = 2222.00),
+      list(name = "Namibia", value = 78.96),
+      list(name = "Ivory Coast", value = 347.68),
+      list(name = "Comoros", value = 5.62),
+      list(name = "Morocco", value = 1809.25),
+      list(name = "Niger", value = 51.51),
+      list(name = "Malawi", value = 52.10),
+      list(name = "Mozambique", value = 183.13),
+      list(name = "Mali", value = 68.23),
+      list(name = "Ethiopia", value = 280.63),
+      list(name = "Gabon", value = 274.27),
+      list(name = "Gambia", value = 14.95),
+      list(name = "United Republic of Tanzania", value = 259.24),
+      list(name = "Nigeria", value = 4008.98),
+      list(name = "Saint Helena", value = 0.40),
+      list(name = "Sao Tome and Principe", value = 3.51),
+      list(name = "Rwanda", value = 32.03),
+      list(name = "South Africa", value = 21465.09),
+      list(name = "South Sudan", value = 40.67),
+      list(name = "Egypt", value = 6667.72),
+      list(name = "Zambia", value = 257.66),
+      list(name = "Algeria", value = 4862.56)))
+```
+</center>
+
+<div style="color:white;
+           display:fill;
+           border-radius:10px;
+           background-color:#1e2761;
+           font-size:110%;
+           font-family:Courier New;
+           letter-spacing:0.5px">
+<p style="padding: 10px;
+              color:white;
+              text-align:center;
+              font-weight:bold;">
+With Bubble Chart we can see that most European & Asian countries have more or less same amounts of CO2 Emissions.
+</p>
+</div> 
+
+***
+
+
+<center>
+  <h1>Emissions in past 10 years (Bar and Line/Pie charts)</h1>
+</center>
+
+<center>
+```{r}
+past_10_years<-co2_emissions %>% 
+  select(name,year,total, coal, oil, gas,cement,flaring, other) %>% 
+  filter(year>2011) %>% 
+  filter(name=="Global")
+
+
+emission_plot<-
+  highchart() %>%
+  hc_chart(type = "column") %>%
+  hc_title(text = "All Emissions Past 10 years") %>%
+  hc_subtitle(text = "2012-2022") %>%
+  hc_xAxis(categories = past_10_years$year, crosshair = TRUE) %>%
+  hc_yAxis(min = 0, title = list(text = "Emissions")) %>%
+  hc_tooltip(headerFormat = "<span style='font-size:10px'>{point.key}</span><table>",
+             pointFormat = paste0("<tr><td style='color:{series.color};padding:0'>{series.name}: </td>",
+                                  "<td style='padding:0'><b>{point.y:.1f} </b></td></tr>"),
+             footerFormat = "</table>",
+             shared = TRUE,
+             useHTML = TRUE) %>%
+  hc_add_series(data = past_10_years$coal, name="Coal", type = "column") %>% 
+  hc_add_series(data = past_10_years$oil, name="Oil", type = "column") %>% 
+  hc_add_series(data = past_10_years$gas, name="Gas", type = "column") %>% 
+  hc_add_series(data = past_10_years$cement, name="Cement",type = "column") %>%
+  hc_add_series(data = past_10_years$flaring, name="Flaring", type = "column") %>% 
+  hc_add_series(data = past_10_years$other, name="Others",type = "column") %>% 
+  hc_title(text="Global Emissions in Past 10 Years",style = list(fontSize = "25px"))
+
+emission_plot
+
+highchart() %>%
+  hc_title(text = "Global Emissions in Past 10 Years") %>%
+  hc_xAxis(categories = past_10_years$year) %>%
+  hc_yAxis(title = list(text = NULL)) %>%
+  hc_add_series(
+    type = "line",
+    name = "Coal",
+    data = past_10_years$coal,
+    colorIndex = 0
+  ) %>%
+  hc_add_series(
+    type = "line",
+    name = "Oil",
+    data = past_10_years$oil,
+    colorIndex = 1
+  ) %>%
+  hc_add_series(
+    type = "line",
+    name = "Gas",
+    data = past_10_years$gas,
+    colorIndex = 2
+  ) %>%
+  hc_add_series(
+    type = "line",
+    name = "Cement",
+    data = past_10_years$cement,
+    colorIndex = 3
+  ) %>%
+  hc_add_series(
+    type = "line",
+    name = "Flaring",
+    data = past_10_years$flaring,
+    colorIndex = 4
+  ) %>%
+  hc_add_series(
+    type = "line",
+    name = "Others",
+    data = past_10_years$other,
+    colorIndex = 5
+  ) %>%
+  hc_add_series(
+    type = "pie",
+    name = "Totals",
+    data = list(
+      list(name = "Coal", y = sum(past_10_years$coal)),
+      list(name = "Oil", y = sum(past_10_years$oil)),
+      list(name = "Gas", y = sum(past_10_years$gas)),
+      list(name = "Cement", y = sum(past_10_years$cement)),
+      list(name = "Flaring", y = sum(past_10_years$flaring)),
+      list(name = "Other", y = sum(past_10_years$other))
+      
+    ),
+    size = "25%",
+    center = list("50%", "40%")
+  )
+
+```
+</center>
+
+<div style="color:white;
+           display:fill;
+           border-radius:10px;
+           background-color:#1e2761;
+           font-size:110%;
+           font-family:Courier New;
+           letter-spacing:0.5px">
+<p style="padding: 10px;
+              color:white;
+              text-align:center;
+              font-weight:bold;">
+Since past 10 years Coal emissions is the highest contributor to CO2 emissions followed by Oil and Gas.
+</p>
+</div> 
+
+***
+<center>
+<h1>All emissions since past 100 Years (Animated plot)</h1>
+</center>
+
+<center>
+```{r}
+## Create function: accumulate_by
+accumulate_by = function(dat, var) {
+  var <- lazyeval::f_eval(var, dat)
+  lvls <- plotly:::getLevels(var)
+  dats <- lapply(seq_along(lvls), function(x) {
+    cbind(dat[var %in% lvls[seq(1, x)], ], frame = lvls[[x]])
+  })
+  dplyr::bind_rows(dats)
+}
+
+d <- co2_emissions %>%
+  filter(name == 'Global') %>%
+  accumulate_by(~year)
+
+d<-d %>% 
+  filter(year>1919)
+
+
+pltly = plot_ly() %>%
+  add_trace(
+    x = ~year, 
+    y = ~coal,
+    name="Coal",
+    frame = ~frame,
+    type = 'scatter',
+    mode = 'lines',
+    data = d,
+    opacity = 1.0) %>%
+  add_trace( 
+    x = ~year, 
+    y = ~oil,
+    name="Oil",
+    frame = ~frame,
+    type = 'scatter',
+    mode = 'lines',
+    data = d,
+    opacity = 0.4) %>%
+  add_trace( 
+    x = ~year, 
+    y = ~gas,
+    name="Gas",
+    frame = ~frame,
+    type = 'scatter',
+    mode = 'lines',
+    data = d,
+    opacity = 0.4) %>%
+  add_trace( 
+    x = ~year, 
+    y = ~cement,
+    name="Cement",
+    frame = ~frame,
+    type = 'scatter',
+    mode = 'lines',
+    data = d,
+    opacity = 0.4) %>%
+  add_trace( 
+    x = ~year, 
+    y = ~flaring,
+    name="Flaring",
+    frame = ~frame, 
+    type = 'scatter',
+    mode = 'lines',
+    data = d,
+    opacity = 0.4) %>%
+  add_trace( 
+    x = ~year, 
+    y = ~other,
+    name="Others",
+    frame = ~frame, 
+    type = 'scatter',
+    mode = 'lines',
+    data = d,
+    opacity = 0.4) %>%
+  layout(
+    title = "All Emissions Since Past 100 years"
+  ) %>%
+  animation_opts(
+    frame = 85, 
+    transition = 0, 
+    redraw = F
+  ) %>%
+  animation_slider(
+    hide = T
+  ) %>%
+  animation_button(
+    x = 1, xanchor = "right", y = 0, yanchor = "bottom"
+  ) %>% 
+  layout(xaxis = list(title = "Year"), yaxis = list(title = "Emissions"))
+pltly
+
+htmlwidgets::saveWidget(pltly, "plotly.html")
+```
+</center>
+
+<div style="color:white;
+           display:fill;
+           border-radius:10px;
+           background-color:#1e2761;
+           font-size:110%;
+           font-family:Courier New;
+           letter-spacing:0.5px">
+<p style="padding: 10px;
+              color:white;
+              text-align:center;
+              font-weight:bold;">
+Since past 100 years Coal emissions is the highest contributor to CO2 emissions followed by Oil and Gas.
+</p>
+</div> 
+
+
+***
+
+<center>
+<h1>Individual Emission analysis</h1>
+</center>
+
+
+```{r}
+all_emissions<-co2_emissions %>% 
+  select(name, total, coal, oil, gas, cement, flaring, other)
+
+all_emissions<- all_emissions %>% 
+  group_by(name) %>% 
+  filter(name!="Global") %>% 
+  summarise(across(everything(), sum, na.rm = TRUE), .groups = 'drop')
+
+```
+<center>
+
+***
+<h2>Coal emissions</h2>
+</center>
+
+<center>
+```{r}
+top_coal<-all_emissions %>% 
+  select(name, coal) %>% 
+  arrange(desc(coal)) %>% 
+  slice(1:10)
+
+
+highchart() %>% 
+  hc_chart(type="bar", options3d=list(enabled=TRUE, alpha=15, beta=15)) %>% 
+  hc_xAxis(categories=top_coal$name) %>% 
+  hc_add_series(data=top_coal$coal, name="Coal Emissions") %>% 
+  hc_title(text="Top 10 Countries with Total Coal Emissions") %>% 
+  hc_add_theme(hc_theme_sandsignika())
+
+```
+</center>
+
+
+<center>
+```{r}
+highchart() %>% 
+  hc_add_series_map(worldgeojson, df=all_emissions, value="coal", 
+                    joinBy="name", name="Coal Emissions") %>%
+  hc_colorAxis(stops=color_stops()) %>% 
+  hc_title(text="World Coal Emissions")
+```
+</center>
+
+<div style="color:white;
+           display:fill;
+           border-radius:10px;
+           background-color:#1e2761;
+           font-size:110%;
+           font-family:Courier New;
+           letter-spacing:0.5px">
+<p style="padding: 10px;
+              color:white;
+              text-align:center;
+              font-weight:bold;">
+China has highest coal emissions followed by USA.
+</p>
+</div> 
+
+
+***
+
+<center>
+<h2>Oil emissions</h2>
+</center>
+
+<center>
+```{r}
+top_oil<-all_emissions %>% 
+  select(name, oil) %>% 
+  arrange(desc(oil)) %>% 
+  slice(1:10)
+
+highchart() %>% 
+  hc_chart(type="bar", options3d=list(enabled=TRUE, alpha=15, beta=25)) %>% 
+  hc_xAxis(categories=top_oil$name) %>% 
+  hc_add_series(data=top_oil$oil, name="Oil Emissions") %>% 
+  hc_title(text="Top 10 Countries with Total Oil Emissions") %>% 
+  hc_add_theme(hc_theme_bloom())
+
+```
+</center>
+
+
+<center>
+```{r, fig.width=8, fig.height=6}
+highchart() %>% 
+  hc_add_series_map(worldgeojson, df=all_emissions, value="oil",
+                    name="Oil Emissions", joinBy="name") %>% 
+  hc_colorAxis(minColor="#0047AB", maxColor="#088F8F") %>% 
+  hc_title(text="World Oil Emissions")
+```
+</center>
+
+<div style="color:white;
+           display:fill;
+           border-radius:10px;
+           background-color:#1e2761;
+           font-size:110%;
+           font-family:Courier New;
+           letter-spacing:0.5px">
+<p style="padding: 10px;
+              color:white;
+              text-align:center;
+              font-weight:bold;">
+USA has highest oil emissions followed by China and Russia.
+</p>
+</div> 
+
+***
+<center>
+<h2>Gas Emissions</h2>
+</center>
+
+<center>
+```{r}
+top_gas<-all_emissions %>% 
+  select(name, gas) %>% 
+  arrange(desc(gas)) %>% 
+  slice(1:10)
+
+highchart() %>% 
+  hc_chart(type="bar", options3d=list(enabled=TRUE, alpha=10, beta=25)) %>% 
+  hc_xAxis(categories=top_gas$name) %>% 
+  hc_add_series(data=top_gas$gas, name="Gas Emissions") %>% 
+  hc_title(text="Top 10 Countries with Total Gas Emissions") %>% 
+  hc_add_theme(hc_theme_ffx())
+
+
+## creating color stop
+n <- 2
+stops <- data.frame(
+  q = 0:n/n,
+  c = c("#408ec6","#1e2761", "#7a2048"),
+  stringsAsFactors = FALSE
+)
+
+stops <- list_parse2(stops)
+
+```
+</center>
+
+
+<center>
+```{r, fig.width=8, fig.height=6}
+highchart() %>% 
+  hc_add_series_map(worldgeojson, df=all_emissions, value="gas",
+                    name="Total Gas Emissions", joinBy = "name") %>% 
+  hc_colorAxis(stops = stops) %>% 
+  hc_title(text="World Gas Emissions")
+```
+</center>
+
+<div style="color:white;
+           display:fill;
+           border-radius:10px;
+           background-color:#1e2761;
+           font-size:110%;
+           font-family:Courier New;
+           letter-spacing:0.5px">
+<p style="padding: 10px;
+              color:white;
+              text-align:center;
+              font-weight:bold;">
+USA has highest gas emissions followed by Russia and Canada.
+</p>
+</div> 
+
+***
+<center>
+<h2>Cement Emissions</h2>
+</center>
+
+<center>
+```{r}
+top_cement<-all_emissions %>% 
+  select(name, cement) %>% 
+  arrange(desc(cement)) %>% 
+  slice(1:10)
+
+highchart() %>% 
+  hc_chart(type="bar", options3d=list(enabled=TRUE, alpha=15, beta=15)) %>% 
+  hc_xAxis(categories=top_cement$name) %>% 
+  hc_add_series(data=top_cement$cement, name="Cement Emissions") %>% 
+  hc_title(text="Top 10 Countries with Total Cement Emissions") %>% 
+  hc_add_theme(hc_theme_google())
+
+```
+ 
+
+<center>
+```{r, fig.width=8, fig.height=6}
+highchart() %>% 
+  hc_add_series_map(worldgeojson, df=all_emissions, value="cement",
+                    name="Total Gas Emissions", joinBy = "name") %>% 
+  hc_colorAxis(minColor="#008080", maxColor="gold") %>% 
+  hc_title(text="World Cement Emissions")
+```
+</center>
+
+</center>
+
+<div style="color:white;
+           display:fill;
+           border-radius:10px;
+           background-color:#1e2761;
+           font-size:110%;
+           font-family:Courier New;
+           letter-spacing:0.5px">
+<p style="padding: 10px;
+              color:white;
+              text-align:center;
+              font-weight:bold;">
+China has highest cement emissions followed by China and India.
+</p>
+</div>
+
+***
+<center>
+<h2>Flaring Emissions</h2>
+</center>
+
+<center>
+```{r}
+top_flaring<-all_emissions %>% 
+  select(name, flaring) %>% 
+  arrange(desc(flaring)) %>% 
+  slice(1:10)
+
+highchart() %>% 
+  hc_chart(type="bar", options3d=list(enabled=TRUE, alpha=15, beta=25)) %>% 
+  hc_xAxis(categories=top_flaring$name) %>% 
+  hc_add_series(data=top_flaring$flaring, name="Flaring Emissions") %>% 
+  hc_title(text="Top 10 Countries with Total Flaring Emissions") %>% 
+  hc_add_theme(hc_theme_elementary())
+
+```
+</center>
+
+
+<center>
+```{r, fig.width=8, fig.height=6}
+highchart() %>% 
+  hc_add_series_map(worldgeojson, df=all_emissions, value="flaring",
+                    name="Flaring Emissions", joinBy = "name") %>% 
+  hc_colorAxis(minColor="#E8BA40", maxColor="#C7395F") %>% 
+  hc_title(text="World Flaring Emissions")
+
+```
+</center>
+
+</center>
+
+<div style="color:white;
+           display:fill;
+           border-radius:10px;
+           background-color:#1e2761;
+           font-size:110%;
+           font-family:Courier New;
+           letter-spacing:0.5px">
+<p style="padding: 10px;
+              color:white;
+              text-align:center;
+              font-weight:bold;">
+USA has highest flaring emissions followed by Iran and Russia.
+</p>
+</div>
+
+***
+
+
+
+***
+
+<center>
+<h1>Percentage Emissions</h1>
+</cemter>
+
+<center>
+```{r}
+all_emissions_percent<-all_emissions %>% 
+  select(name, total, coal, oil, gas, cement, flaring, other) %>% 
+  group_by(name) %>% 
+  mutate(coal_percent=round(coal*100/sum(total), digits=2)) %>% 
+  mutate(oil_percent=round(oil*100/sum(total), digits=2)) %>% 
+  mutate(gas_percent=round(gas*100/sum(total), digits=2)) %>% 
+  mutate(cement_percent=round(cement*100/sum(total), digits=2)) %>% 
+  mutate(flaring_percent=round(flaring*100/sum(total), digits=2)) %>% 
+  mutate(other_percent=round(other*100/sum(total), digits=2))
+
+```
+</center>
+
+<center>
+<h2>Coal Emissions Percent</h2>
+</center>
+
+
+<center>
+```{r}
+coal_emissions_percent<-all_emissions_percent %>% 
+  group_by(name) %>% 
+  summarise(coal_percent = max(coal_percent)) %>% 
+  top_n(10) %>% 
+  arrange(desc(coal_percent))
+
+
+coal_emissions_percent %>%
+  hchart("column", hcaes(x=name, y=coal_percent),
+         name="Coal Emissions %") %>%
+  hc_xAxis(title = list(text = "Country")) %>%
+  hc_yAxis(title = list(text = "Coal Percentage Emission"))
+```
+</center>
+
+
+<div style="color:white;
+           display:fill;
+           border-radius:10px;
+           background-color:#1e2761;
+           font-size:110%;
+           font-family:Courier New;
+           letter-spacing:0.5px">
+<p style="padding: 10px;
+              color:white;
+              text-align:center;
+              font-weight:bold;">
+Out of all emissions in North Korea, coal emission contributes highest (91.88%).
+</p>
+</div>
+
+<center>
+```{r}
+highchart() %>%
+  hc_add_series_map(worldgeojson, df = all_emissions_percent, value = "coal_percent", 
+                    name="Oil Emissions Percentage",joinBy = "name") %>%
+  hc_colorAxis(dataClasses = list(
+    list(from = 0, to = 5, color = "#74c476"),
+    list(from = 5, to = 10, color = "#1e2761"),
+    list(from = 10, to = 20, color = "#fdae6b"),
+    list(from = 20, to = 30, color = "#7a2048"),
+    list(from = 30, to = 40, color = "#e6550d"),
+    list(from = 40, to = 50, color = "#a63603"),
+    list(from = 50, to = 100, color = "#FF0000")
+  )) %>%
+  hc_title(text = "World: Percentage Of Coal Emissions") %>%
+  hc_tooltip(
+    useHTML = TRUE,
+    pointFormat = paste("<span style='font-size:12px'><b>", "{point.name}", "</b></span><br>",
+                        "<span style='color:{point.color}'>", "{series.name}", "</span>: ",
+                        "<b>", "{point.value:.2f}%", "</b><br/>", sep = "")
+  )
+
+```
+</center>
+
+<div style="color:white;
+           display:fill;
+           border-radius:10px;
+           background-color:#1e2761;
+           font-size:110%;
+           font-family:Courier New;
+           letter-spacing:0.5px">
+<p style="padding: 10px;
+              color:white;
+              text-align:center;
+              font-weight:bold;">
+Most Coal Emissions are from Asia and Europe.
+</p>
+</div>
+
+***
+
+<center>
+<h2>Oil Emissions Percent</h2>
+</center>
+
+<center>
+```{r}
+
+oil_emissions_percent<-all_emissions_percent %>% 
+  group_by(name) %>% 
+  summarise(oil_percent = max(oil_percent)) %>%
+  top_n(10) %>% 
+  arrange(desc(oil_percent))
+
+summary(oil_emissions_percent)
+
+
+
+```
+</center>
+
+>*There are 45 countries that have 100% Oil Emissions only.*
+
+<center>
+```{r}
+highchart() %>%
+  hc_add_series_map(worldgeojson, df = all_emissions_percent, value = "oil_percent", 
+                    name="Oil Emissions Percentage", joinBy = "name") %>%
+  hc_colorAxis(dataClasses = list(
+    list(from = 0, to = 5, color = "#74c476"),
+    list(from = 5, to = 10, color = "#1e2761"),
+    list(from = 10, to = 20, color = "#fdae6b"),
+    list(from = 20, to = 30, color = "#7a2048"),
+    list(from = 30, to = 40, color = "#e6550d"),
+    list(from = 40, to = 50, color = "#a63603"),
+    list(from = 50, to = 100, color = "#FF0000")
+  )) %>%
+  hc_title(text = "World: Percentage Of Oil Emissions") %>%
+  hc_tooltip(
+    useHTML = TRUE,
+    pointFormat = paste("<span style='font-size:12px'><b>", "{point.name}", "</b></span><br>",
+                        "<span style='color:{point.color}'>", "{series.name}", "</span>: ",
+                        "<b>", "{point.value:.2f}%", "</b><br/>", sep = "")
+  )
+
+```
+</center>
+
+<div style="color:white;
+           display:fill;
+           border-radius:10px;
+           background-color:#1e2761;
+           font-size:110%;
+           font-family:Courier New;
+           letter-spacing:0.5px">
+<p style="padding: 10px;
+              color:white;
+              text-align:center;
+              font-weight:bold;">
+Most oil emissions are from African and South American Countries.
+</p>
+</div>
+***
+
+<center>
+<h2>Gas Emissions Percent</h2>
+</center>
+
+<center>
+```{r}
+gas_emissions_percent<-all_emissions_percent %>% 
+  group_by(name) %>% 
+  summarise(gas_percent = max(gas_percent)) %>% 
+  top_n(10) %>%  
+  arrange(desc(gas_percent))
+
+summary(oil_emissions_percent)
+
+gas_emissions_percent %>%
+  hchart("column", hcaes(x=name, y=(gas_percent)),
+         name="Gas Emissions %") %>%
+  hc_xAxis(title = list(text = "Country")) %>%
+  hc_yAxis(title = list(text = "Gas Percentage Emission"))
+```
+</center>
+
+<div style="color:white;
+           display:fill;
+           border-radius:10px;
+           background-color:#1e2761;
+           font-size:110%;
+           font-family:Courier New;
+           letter-spacing:0.5px">
+<p style="padding: 10px;
+              color:white;
+              text-align:center;
+              font-weight:bold;">
+Out of all emissions in Bahrain, Gas emission contributes highest (76.62%).
+</p>
+</div>
+
+<center>
+```{r}
+highchart() %>%
+  hc_add_series_map(worldgeojson, df = all_emissions_percent, value = "gas_percent", 
+                    name="Gas Emissions Percentage",joinBy = "name") %>%
+  hc_colorAxis(dataClasses = list(
+    list(from = 0, to = 5, color = "#74c476"),
+    list(from = 5, to = 10, color = "#1e2761"),
+    list(from = 10, to = 20, color = "#fdae6b"),
+    list(from = 20, to = 30, color = "#7a2048"),
+    list(from = 30, to = 40, color = "#e6550d"),
+    list(from = 40, to = 50, color = "#a63603"),
+    list(from = 50, to = 100, color = "#FF0000")
+  )) %>%
+  hc_title(text = "World: Percentage Of Gas Emissions") %>%
+  hc_tooltip(
+    useHTML = TRUE,
+    pointFormat = paste("<span style='font-size:12px'><b>", "{point.name}", "</b></span><br>",
+                        "<span style='color:{point.color}'>", "{series.name}", "</span>: ",
+                        "<b>", "{point.value:.2f}%", "</b><br/>", sep = "")
+  )
+
+```
+
+<div style="color:white;
+           display:fill;
+           border-radius:10px;
+           background-color:#1e2761;
+           font-size:110%;
+           font-family:Courier New;
+           letter-spacing:0.5px">
+<p style="padding: 10px;
+              color:white;
+              text-align:center;
+              font-weight:bold;">
+Most African countries have less Gas Emissions.
+</p>
+</div>
+
+
+</center>
+
+<center>
+<h2>Cement Emissions Percent</h2>
+</center>
+
+<center>
+```{r}
+cement_emissions_percent<-all_emissions_percent %>% 
+  group_by(name) %>% 
+  summarise(cement_percent=max(cement_percent)) %>% 
+  top_n(10) %>% 
+  arrange(desc(cement_percent))
+
+cement_emissions_percent %>%
+  hchart("column", hcaes(x=name, y=(cement_percent)),
+         name="Cement Emissions %") %>%
+  hc_xAxis(title = list(text = "Country")) %>%
+  hc_yAxis(title = list(text = "Cement Percentage Emission")) %>% 
+  hc_add_theme(hc_theme_economist())
+
+```
+</center>
+
+<div style="color:white;
+           display:fill;
+           border-radius:10px;
+           background-color:#1e2761;
+           font-size:110%;
+           font-family:Courier New;
+           letter-spacing:0.5px">
+<p style="padding: 10px;
+              color:white;
+              text-align:center;
+              font-weight:bold;">
+Out of all emissions in Togo, Cement emission contributes highest (30.59%).
+</p>
+</div>
+
+<center>
+```{r}
+highchart() %>%
+  hc_add_series_map(worldgeojson, df = all_emissions_percent, value = "cement_percent", 
+                    name="Cement Emissions Percentage",joinBy = "name") %>%
+  hc_colorAxis(dataClasses = list(
+    list(from = 0, to = 5, color = "#74c476"),
+    list(from = 5, to = 10, color = "#1e2761"),
+    list(from = 10, to = 20, color = "#fdae6b"),
+    list(from = 20, to = 30, color = "#7a2048"),
+    list(from = 30, to = 40, color = "#e6550d"),
+    list(from = 40, to = 50, color = "#a63603"),
+    list(from = 50, to = 100, color = "#FF0000")
+  )) %>%
+  hc_title(text = "World: Percentage Of Cement Emissions") %>%
+  hc_tooltip(
+    useHTML = TRUE,
+    pointFormat = paste("<span style='font-size:12px'><b>", "{point.name}", "</b></span><br>",
+                        "<span style='color:{point.color}'>", "{series.name}", "</span>: ",
+                        "<b>", "{point.value:.2f}%", "</b><br/>", sep = "")
+  )
+```
+</center>
+
+<div style="color:white;
+           display:fill;
+           border-radius:10px;
+           background-color:#1e2761;
+           font-size:110%;
+           font-family:Courier New;
+           letter-spacing:0.5px">
+<p style="padding: 10px;
+              color:white;
+              text-align:center;
+              font-weight:bold;">
+Most countries in the world have less cement emissions.
+</p>
+</div>
+
+
+<center>
+<h2>Flaring Emissions Percent</h2>
+</center>
+
+<center>
+```{r}
+flaring_emissions_percent<-all_emissions_percent %>% 
+  group_by(name) %>% 
+  summarise(flaring_percent=max(flaring_percent)) %>% 
+  top_n(10) %>% 
+  arrange(desc(flaring_percent))
+
+flaring_emissions_percent %>%
+  hchart("column", hcaes(x=name, y=(flaring_percent)),
+         name="Flaring Emissions %") %>%
+  hc_xAxis(title = list(text = "Country")) %>%
+  hc_yAxis(title = list(text = "Flaring Percentage Emission")) %>% 
+  hc_add_theme(hc_theme_bloom())
+```
+</center>
+
+<div style="color:white;
+           display:fill;
+           border-radius:10px;
+           background-color:#1e2761;
+           font-size:110%;
+           font-family:Courier New;
+           letter-spacing:0.5px">
+<p style="padding: 10px;
+              color:white;
+              text-align:center;
+              font-weight:bold;">
+Out of all emissions in Gabon, Flaring emission contributes highest (52.09%).
+</p>
+</div>
+
+<center>
+```{r}
+highchart() %>%
+  hc_add_series_map(worldgeojson, df = all_emissions_percent, value = "flaring_percent", 
+                    name="Flaring Emissions Percentage",joinBy = "name") %>%
+  hc_colorAxis(dataClasses = list(
+    list(from = 0, to = 5, color = "#74c476"),
+    list(from = 5, to = 10, color = "#1e2761"),
+    list(from = 10, to = 20, color = "#fdae6b"),
+    list(from = 20, to = 30, color = "#7a2048"),
+    list(from = 30, to = 40, color = "#e6550d"),
+    list(from = 40, to = 50, color = "#a63603"),
+    list(from = 50, to = 100, color = "#FF0000")
+  )) %>%
+  hc_title(text = "World: Percentage Of Flaring Emissions") %>%
+  hc_tooltip(
+    useHTML = TRUE,
+    pointFormat = paste("<span style='font-size:12px'><b>", "{point.name}", "</b></span><br>",
+                        "<span style='color:{point.color}'>", "{series.name}", "</span>: ",
+                        "<b>", "{point.value:.2f}%", "</b><br/>", sep = "")
+  )
+```
+</center>
+
+</center>
+
+<div style="color:white;
+           display:fill;
+           border-radius:10px;
+           background-color:#1e2761;
+           font-size:110%;
+           font-family:Courier New;
+           letter-spacing:0.5px">
+<p style="padding: 10px;
+              color:white;
+              text-align:center;
+              font-weight:bold;">
+Most countries in the world have less flaring emissions.
+</p>
+</div>
+
+<center>
+<h2>Other Emissions Percent</h2>
+</center>
+
+<center>
+```{r}
+other_emissions_percent<-all_emissions_percent %>% 
+  group_by(name) %>% 
+  summarise(other_percent=max(other_percent)) %>% 
+  top_n(10) %>% 
+  arrange(desc(other_percent))
+
+other_emissions_percent %>%
+  hchart("column", hcaes(x=name, y=(other_percent)),
+         name="Flaring Emissions %") %>%
+  hc_xAxis(title = list(text = "Country")) %>%
+  hc_yAxis(title = list(text = "Other Percentage Emission")) %>% 
+  hc_add_theme(hc_theme_sandsignika())
+```
+
+<div style="color:white;
+           display:fill;
+           border-radius:10px;
+           background-color:#1e2761;
+           font-size:110%;
+           font-family:Courier New;
+           letter-spacing:0.5px">
+<p style="padding: 10px;
+              color:white;
+              text-align:center;
+              font-weight:bold;">
+China has highest other forms of emissions.
+</p>
+</div>
+
+<center>
+```{r}
+highchart() %>%
+  hc_add_series_map(worldgeojson, df = all_emissions_percent, value = "other_percent", 
+                    name="Other Emissions Percentage",joinBy = "name") %>%
+  hc_colorAxis(dataClasses = list(
+    list(from = 0, to = 0, color = "#74c476"),
+    list(from = 0.1, to = 0.39, color = "#1e2761"),
+    list(from = 0.4, to = 0.69, color = "#fdae6b"),
+    list(from = 0.7, to = 0.99, color = "#7a2048"),
+    list(from = 1, to = 1.29, color = "#e6550d"),
+    list(from = 1.3, to = 1.59, color = "#a63603"),
+    list(from = 1.6, to = 2, color = "#FF0000")
+  )) %>%
+  hc_title(text = "World: Percentage Of Other Emissions") %>%
+  hc_tooltip(
+    useHTML = TRUE,
+    pointFormat = paste("<span style='font-size:12px'><b>", "{point.name}", "</b></span><br>",
+                        "<span style='color:{point.color}'>", "{series.name}", "</span>: ",
+                        "<b>", "{point.value:.2f}%", "</b><br/>", sep = "")
+  )
+
+
+```
+
+</center>
+
+<div style="color:white;
+           display:fill;
+           border-radius:10px;
+           background-color:#1e2761;
+           font-size:110%;
+           font-family:Courier New;
+           letter-spacing:0.5px">
+<p style="padding: 10px;
+              color:white;
+              text-align:center;
+              font-weight:bold;">
+Africa has least to none other forms of emissions.
+</p>
+</div>
